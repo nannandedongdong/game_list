@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T06:48:40.040Z",
+  "updated_at": "2026-10-22T06:51:33.556Z",
   "games": [
+    {
+      "id": "cps1-20261022-7f6a9e88",
+      "name": "测试",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-7f6a9e88/game.zip",
+      "file_name": "knights.zip",
+      "file_size": 2355202,
+      "sha256": "41e54d65889d9bdf0181b10c73582ba2ca97cf502d5ddb32688f3b39bf0baa13",
+      "revision": 1,
+      "updated_at": "2026-10-22T06:51:33.556Z"
+    },
     {
       "id": "cps1-20261022-badc9090",
       "name": "快打旋风-日版",
