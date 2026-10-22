@@ -1,19 +1,8 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T09:32:18.567Z",
+  "updated_at": "2026-10-22T09:32:33.880Z",
   "games": [
-    {
-      "id": "cps1-20261022-62c21991",
-      "name": "恐龙快打（美版 930201） [dinou]",
-      "cover_path": null,
-      "rom_path": "../roms/cps1/cps1-20261022-62c21991/game.zip",
-      "file_name": "恐龙快打（美版 930201） [dinou].zip",
-      "file_size": 4118728,
-      "sha256": "94ad5b8efc390ee63a10ea188fa74f7c6fb53231e2e57b47c87a982c19c6ac48",
-      "revision": 2,
-      "updated_at": "2026-10-22T08:53:32.356Z"
-    },
     {
       "id": "cps1-20261022-7f6a9e88",
       "name": "圆桌骑士-世界版",
