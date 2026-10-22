@@ -8,6 +8,7 @@ const state = {
   pendingDeleteGame: null,
   deleting: false,
   deleteTimer: null,
+  autoFilledName: null,
 };
 
 const el = (id) => document.getElementById(id);
@@ -60,7 +61,7 @@ function bindEvents() {
   existingGame.addEventListener('change', () => selectExistingGame(existingGame.value));
   newGameButton.addEventListener('click', clearEditMode);
   gameType.addEventListener('change', updateExtensionHint);
-  romFile.addEventListener('change', updateExtensionHint);
+  romFile.addEventListener('change', handleRomSelected);
   coverFile.addEventListener('change', previewCover);
   syncButton.addEventListener('click', retryPush);
   deleteCancelButton.addEventListener('click', closeDeleteDialog);
@@ -230,6 +231,7 @@ function selectExistingGame(id) {
     return;
   }
   state.editingId = id;
+  state.autoFilledName = null;
   existingGame.value = id;
   gameName.value = game.name;
   gameType.value = game.game_type;
@@ -257,6 +259,7 @@ function selectExistingGame(id) {
 
 function clearEditMode() {
   state.editingId = null;
+  state.autoFilledName = null;
   gameForm.reset();
   existingGame.value = '';
   gameType.disabled = false;
@@ -272,6 +275,26 @@ function clearEditMode() {
     ? `最大 ${formatLimit(state.config.limits.rom_bytes)}`
     : '最大 10MB';
   updateExtensionHint();
+}
+
+function handleRomSelected() {
+  updateExtensionHint();
+  const file = romFile.files?.[0];
+  if (!file || state.editingId) return;
+
+  const currentName = gameName.value.trim();
+  if (currentName && currentName !== state.autoFilledName) return;
+
+  const defaultName = stripFileExtension(file.name);
+  gameName.value = defaultName;
+  state.autoFilledName = defaultName;
+}
+
+function stripFileExtension(filename) {
+  const value = String(filename || '').trim();
+  const lastDot = value.lastIndexOf('.');
+  if (lastDot <= 0) return value;
+  return value.slice(0, lastDot);
 }
 
 function updateExtensionHint() {
