@@ -7,6 +7,7 @@ const {
   detectCoverExtension,
   makeGameId,
   normalizeType,
+  safeDownloadFileName,
   sha256,
   validateGameId,
   validateRom,
@@ -68,6 +69,12 @@ test('detects supported cover signatures', () => {
     () => detectCoverExtension({ buffer: Buffer.from('not-image'), truncated: false }, 100),
     /JPG/,
   );
+});
+
+test('creates download names containing only letters, numbers and extension', () => {
+  const name = safeDownloadFileName('gba-20261022-a1b2c3d4', '.zip');
+  assert.equal(name, 'gba20261022a1b2c3d4.zip');
+  assert.match(name, /^[A-Za-z0-9]+\.[A-Za-z0-9]+$/);
 });
 
 test('creates parseable game IDs and stable SHA-256 values', () => {

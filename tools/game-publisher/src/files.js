@@ -143,6 +143,16 @@ function detectCoverExtension(file, maxBytes) {
   });
 }
 
+function safeDownloadFileName(id, extension) {
+  const stem = String(id || '').replace(/[^A-Za-z0-9]/g, '');
+  const ext = String(extension || '')
+    .replace(/^\./, '')
+    .replace(/[^A-Za-z0-9]/g, '')
+    .toLowerCase();
+  if (!stem || !ext) throw new Error('无法生成安全的下载文件名');
+  return `${stem}.${ext}`;
+}
+
 function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
@@ -163,6 +173,7 @@ module.exports = {
   formatBytes,
   makeGameId,
   normalizeType,
+  safeDownloadFileName,
   sha256,
   validateGameId,
   validateRom,

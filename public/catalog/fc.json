@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "game_type": "FC",
-  "updated_at": "2026-10-22T07:49:25.095Z",
+  "updated_at": "2026-10-22T09:58:57.241Z",
   "games": [
     {
       "id": "fc-20261022-7b362bc1",
       "name": "魂斗罗S枪30条命版本",
       "cover_path": null,
       "rom_path": "../roms/fc/fc-20261022-7b362bc1/game.nes",
-      "file_name": "魂斗罗S枪30条命版.nes",
+      "file_name": "fc202610227b362bc1.nes",
       "file_size": 131088,
       "sha256": "6643104144db9ebdc4a6e1baa8932212caae7547fc77c3ee304c04b25193ed47",
       "revision": 1,
@@ -19,7 +19,7 @@
       "name": "魂斗罗1",
       "cover_path": null,
       "rom_path": "../roms/fc/fc-20261022-785e1843/game.zip",
-      "file_name": "魂斗罗.zip",
+      "file_name": "fc20261022785e1843.zip",
       "file_size": 122918,
       "sha256": "93d73a58053d57b8c1feb16ec4e9a63a232ffb031c5775cac333e87165dec534",
       "revision": 1,

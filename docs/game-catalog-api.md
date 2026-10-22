@@ -120,7 +120,7 @@ public/catalog/fc.json
       "name": "热血硬派国夫君SP 汉化版V1.0",
       "cover_path": "../covers/gba/gba-20261022-9fdb7626/cover.webp",
       "rom_path": "../roms/gba/gba-20261022-9fdb7626/game.zip",
-      "file_name": "热血硬派国夫君SP 汉化版V1.0.zip",
+      "file_name": "gba202610229fdb7626.zip",
       "file_size": 9437184,
       "sha256": "9f8a...完整64位十六进制...",
       "revision": 1,
@@ -147,7 +147,7 @@ public/catalog/fc.json
 | `name` | string | 否 | 游戏显示名称，允许重复 |
 | `cover_path` | string/null | 是 | 海报相对路径；没有上传海报时为 `null` |
 | `rom_path` | string | 否 | 游戏包相对路径，文件可能是原始 ROM 或 `.zip` |
-| `file_name` | string | 否 | 上传时的原始文件名，可能以 `.zip` 结尾 |
+| `file_name` | string | 否 | 下载时使用的安全文件名，只包含英文字母、数字和扩展名，例如 `gba202610229fdb7626.zip` |
 | `file_size` | number | 否 | 发布的游戏包字节数；ZIP 包按 ZIP 文件本身计算 |
 | `sha256` | string | 否 | 发布的游戏包 SHA-256；ZIP 包按 ZIP 文件本身计算，不是解压后文件 |
 | `revision` | number | 否 | 记录修订号，从 `1` 开始；每次成功更新都会递增 |
@@ -196,6 +196,8 @@ ROM 和海报均可公开下载，不需要 `Authorization`。
 所有类型的游戏包都可以使用 `.zip`。上传时服务端会检查 ZIP 内的文件头和文件结构，确认内容与选择的游戏类型一致；内容不一致或包含多种类型时会被拒绝。
 
 服务端不会解压或修改最终发布的 ZIP。客户端应直接下载 `rom_path` 指向的文件，并以列表顶层的 `game_type` 判断游戏类型，不能根据 `.zip` 后缀推断类型。若业务层要求未压缩 ROM，可在客户端下载并校验 ZIP 后自行解压。
+
+下载落盘时使用 `file_name`，不要使用 `name`。`name` 是中文展示名，可能包含空格、括号等符号；`file_name` 保证符合 `^[A-Za-z0-9]+\.[A-Za-z0-9]+$`。
 
 校验失败时应删除临时文件，不要把它标记为已下载。
 
@@ -343,6 +345,7 @@ data class GameItem(
 - 上传 ZIP 时会检查内部文件类型，防止类型选择错误。
 - 客户端接口字段保持不变，`schema_version` 仍为 `1`。
 - 明确 `sha256` 和 `file_size` 针对已发布的 ZIP 文件本身。
+- `file_name` 改为仅包含英文字母、数字和扩展名的安全下载名。
 - 明确 `revision` 在每次更新时递增，ROM 是否变化应以 `sha256` 判断。
 - 增加 GitHub Raw 与 jsDelivr 双地址策略。
 - 增加 jsDelivr `@main` 缓存旧数据时，通过 GitHub API 获取 commit SHA 再访问固定版本的方法。

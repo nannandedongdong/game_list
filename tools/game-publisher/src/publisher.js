@@ -8,6 +8,7 @@ const {
   detectCoverExtension,
   makeGameId,
   normalizeType,
+  safeDownloadFileName,
   sha256,
   validateGameId,
   validateRom,
@@ -154,7 +155,9 @@ class GamePublisher {
         rom_path: rom
           ? this.store.catalogRelativeRomPath(type, id, rom.extension)
           : previous.rom_path,
-        file_name: rom ? safeFileName(files.rom.filename) : previous.file_name,
+        file_name: rom
+          ? safeDownloadFileName(id, rom.extension)
+          : safeDownloadFileName(id, path.extname(previous.rom_path)),
         file_size: rom ? rom.buffer.length : previous.file_size,
         sha256: romDigest || previous.sha256,
         revision: Number(previous.revision || 0) + 1,
@@ -168,7 +171,7 @@ class GamePublisher {
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : null,
         rom_path: this.store.catalogRelativeRomPath(type, id, rom.extension),
-        file_name: safeFileName(files.rom.filename),
+        file_name: safeDownloadFileName(id, rom.extension),
         file_size: rom.buffer.length,
         sha256: romDigest,
         revision: 1,
@@ -356,10 +359,6 @@ class GamePublisher {
   }
 }
 
-function safeFileName(value) {
-  const name = path.basename(String(value || '').replace(/\\/g, '/')).trim();
-  return name || 'game';
-}
 
 function httpError(statusCode, code, message) {
   return Object.assign(new Error(message), { statusCode, code });

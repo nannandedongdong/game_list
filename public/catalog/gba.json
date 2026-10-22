@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
   "game_type": "GBA",
-  "updated_at": "2026-10-22T02:58:40.909Z",
+  "updated_at": "2026-10-22T09:58:57.241Z",
   "games": [
     {
       "id": "gba-20261022-a43607f1",
       "name": "超级马里奥A Super Mario Advance(JP)",
       "cover_path": null,
       "rom_path": "../roms/gba/gba-20261022-a43607f1/game.zip",
-      "file_name": "0002 - 超级马里奥A Super Mario Advance(JP)(Nintendo)(32Mb).zip",
+      "file_name": "gba20261022a43607f1.zip",
       "file_size": 2129841,
       "sha256": "4fa35d239a8eddd4a219cdda6b553bda9b3fb34780192d6bec02da70c419e612",
       "revision": 1,
@@ -19,7 +19,7 @@
       "name": "0001 - 最高时速赛车 F-Zero(JP)",
       "cover_path": null,
       "rom_path": "../roms/gba/gba-20261022-e895f27c/game.zip",
-      "file_name": "0001 - 最高时速赛车 F-Zero(JP)(Nintendo)(32Mb).zip",
+      "file_name": "gba20261022e895f27c.zip",
       "file_size": 2108673,
       "sha256": "2fdc9990ca7b58d25195f09740cefd0b3935e0261e72cd3200c8678ca635a9c1",
       "revision": 1,
