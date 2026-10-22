@@ -119,8 +119,11 @@ class CatalogStore {
     return path.join(this.gameDirectory(type, 'cover', id), `cover${extension}`);
   }
 
-  romFile(type, id, extension) {
-    return path.join(this.gameDirectory(type, 'rom', id), `game${extension}`);
+  romFile(type, id, extension, preferredName = null) {
+    return path.join(
+      this.gameDirectory(type, 'rom', id),
+      preferredName || `game${extension}`,
+    );
   }
 
   gamePathFromCatalogPath(value) {
@@ -143,13 +146,13 @@ class CatalogStore {
     );
   }
 
-  catalogRelativeRomPath(type, id, extension) {
+  catalogRelativeRomPath(type, id, extension, preferredName = null) {
     return path.posix.join(
       '..',
       'roms',
       type.toLowerCase(),
       id,
-      `game${extension}`,
+      preferredName || `game${extension}`,
     );
   }
 

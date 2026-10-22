@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const yazl = require('yazl');
 const {
   detectCoverExtension,
+  downloadFileNameForUpload,
   makeGameId,
   normalizeType,
   safeDownloadFileName,
@@ -68,6 +69,23 @@ test('detects supported cover signatures', () => {
   assert.throws(
     () => detectCoverExtension({ buffer: Buffer.from('not-image'), truncated: false }, 100),
     /JPG/,
+  );
+});
+
+test('uses MAME set name for CPS1 download files', () => {
+  assert.equal(
+    downloadFileNameForUpload('CPS1', 'cps1-20261022-a1b2c3d4', '.zip', 'punisher.zip'),
+    'punisher.zip',
+  );
+  assert.throws(
+    () =>
+      downloadFileNameForUpload(
+        'CPS1',
+        'cps1-20261022-a1b2c3d4',
+        '.zip',
+        '惩罚者（世界版）.zip',
+      ),
+    /MAME 集合短名/,
   );
 });
 

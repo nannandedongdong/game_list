@@ -153,6 +153,22 @@ function safeDownloadFileName(id, extension) {
   return `${stem}.${ext}`;
 }
 
+function downloadFileNameForUpload(type, id, extension, originalFilename) {
+  if (String(type).toUpperCase() !== 'CPS1') {
+    return safeDownloadFileName(id, extension);
+  }
+
+  const original = path.basename(String(originalFilename || '').replace(/\\/g, '/'));
+  const stem = original.slice(0, Math.max(0, original.length - path.extname(original).length));
+  if (!/^[a-z0-9]+$/.test(stem)) {
+    throw Object.assign(
+      new Error('CPS1 ZIP 文件名必须是 MAME 集合短名，例如 punisher.zip'),
+      { statusCode: 400, code: 'INVALID_CPS1_FILE_NAME' },
+    );
+  }
+  return `${stem}.zip`;
+}
+
 function sha256(buffer) {
   return crypto.createHash('sha256').update(buffer).digest('hex');
 }
@@ -169,6 +185,7 @@ function formatBytes(bytes) {
 module.exports = {
   cleanDisplayName,
   detectCoverExtension,
+  downloadFileNameForUpload,
   extensionOf,
   formatBytes,
   makeGameId,

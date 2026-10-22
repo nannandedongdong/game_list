@@ -6,9 +6,9 @@ const path = require('node:path');
 const {
   cleanDisplayName,
   detectCoverExtension,
+  downloadFileNameForUpload,
   makeGameId,
   normalizeType,
-  safeDownloadFileName,
   sha256,
   validateGameId,
   validateRom,
@@ -117,6 +117,9 @@ class GamePublisher {
     }
 
     const id = isUpdate ? requestedId : this.uniqueGameId(type);
+    const downloadName = rom
+      ? downloadFileNameForUpload(type, id, rom.extension, files.rom.filename)
+      : null;
     const romDigest = rom ? sha256(rom.buffer) : null;
     if (rom) {
       const duplicate = this.store.findDuplicateHash(romDigest, id);
@@ -133,7 +136,14 @@ class GamePublisher {
     const catalog = this.store.readCatalog(type);
     const romDirectory = this.store.gameDirectory(type, 'rom', id);
     const coverDirectory = this.store.gameDirectory(type, 'cover', id);
-    const romPath = rom ? this.store.romFile(type, id, rom.extension) : null;
+    const romPath = rom
+      ? this.store.romFile(
+          type,
+          id,
+          rom.extension,
+          type === 'CPS1' ? downloadName : null,
+        )
+      : null;
     const coverPath = coverExtension
       ? this.store.coverFile(type, id, coverExtension)
       : null;
@@ -153,11 +163,14 @@ class GamePublisher {
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : previous.cover_path || null,
         rom_path: rom
-          ? this.store.catalogRelativeRomPath(type, id, rom.extension)
+          ? this.store.catalogRelativeRomPath(
+              type,
+              id,
+              rom.extension,
+              type === 'CPS1' ? downloadName : null,
+            )
           : previous.rom_path,
-        file_name: rom
-          ? safeDownloadFileName(id, rom.extension)
-          : safeDownloadFileName(id, path.extname(previous.rom_path)),
+        file_name: rom ? downloadName : previous.file_name,
         file_size: rom ? rom.buffer.length : previous.file_size,
         sha256: romDigest || previous.sha256,
         revision: Number(previous.revision || 0) + 1,
@@ -170,8 +183,13 @@ class GamePublisher {
         cover_path: coverExtension
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : null,
-        rom_path: this.store.catalogRelativeRomPath(type, id, rom.extension),
-        file_name: safeDownloadFileName(id, rom.extension),
+        rom_path: this.store.catalogRelativeRomPath(
+          type,
+          id,
+          rom.extension,
+          type === 'CPS1' ? downloadName : null,
+        ),
+        file_name: downloadName,
         file_size: rom.buffer.length,
         sha256: romDigest,
         revision: 1,
