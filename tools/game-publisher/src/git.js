@@ -1,6 +1,8 @@
 'use strict';
 
 const { execFile } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 
 function runGit(config, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -101,10 +103,11 @@ async function prepareRepository(config, relativePaths = []) {
 }
 
 async function commitAndPush(config, relativePaths, message) {
-  if (relativePaths.length === 0) throw new Error('没有要提交的文件');
+  const commitPaths = await filterCommitPaths(config, relativePaths);
+  if (commitPaths.length === 0) throw new Error('没有要提交的文件');
 
   try {
-    await runGit(config, ['add', '-A', '--', ...relativePaths]);
+    await runGit(config, ['add', '-A', '--', ...commitPaths]);
   } catch (error) {
     throw gitError('暂存文件失败', error);
   }
@@ -135,6 +138,20 @@ async function commitAndPush(config, relativePaths, message) {
   }
 
   return { commit, pushed: true };
+}
+
+async function filterCommitPaths(config, relativePaths) {
+  const result = [];
+  for (const relativePath of [...new Set(relativePaths)]) {
+    const absolutePath = path.resolve(config.repositoryRoot, relativePath);
+    if (fs.existsSync(absolutePath)) {
+      result.push(relativePath);
+      continue;
+    }
+    const tracked = await runGit(config, ['ls-files', '--', relativePath]);
+    if (tracked) result.push(relativePath);
+  }
+  return result;
 }
 
 async function pushCurrent(config) {
@@ -177,6 +194,7 @@ async function repositoryStatus(config) {
 
 module.exports = {
   commitAndPush,
+  filterCommitPaths,
   prepareRepository,
   pushCurrent,
   repositoryStatus,

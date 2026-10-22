@@ -5,6 +5,9 @@ const state = {
   games: [],
   activeType: 'GBA',
   editingId: null,
+  pendingDeleteGame: null,
+  deleting: false,
+  deleteTimer: null,
 };
 
 const el = (id) => document.getElementById(id);
@@ -22,6 +25,16 @@ const progressBar = el('progressBar');
 const gameList = el('gameList');
 const typeTabs = el('typeTabs');
 const newGameButton = el('newGameButton');
+const deleteDialog = el('deleteDialog');
+const deleteDialogText = el('deleteDialogText');
+const deleteConfirmActions = el('deleteConfirmActions');
+const deleteProgressWrap = el('deleteProgressWrap');
+const deleteProgressBar = el('deleteProgressBar');
+const deleteProgressText = el('deleteProgressText');
+const deleteConfirmButton = el('deleteConfirmButton');
+const deleteCancelButton = el('deleteCancelButton');
+const deleteCloseButton = el('deleteCloseButton');
+const deleteRetryButton = el('deleteRetryButton');
 
 async function init() {
   bindEvents();
@@ -50,6 +63,13 @@ function bindEvents() {
   romFile.addEventListener('change', updateExtensionHint);
   coverFile.addEventListener('change', previewCover);
   syncButton.addEventListener('click', retryPush);
+  deleteCancelButton.addEventListener('click', closeDeleteDialog);
+  deleteCloseButton.addEventListener('click', closeDeleteDialog);
+  deleteConfirmButton.addEventListener('click', confirmDelete);
+  deleteRetryButton.addEventListener('click', retryDeletePush);
+  deleteDialog.addEventListener('click', (event) => {
+    if (event.target === deleteDialog && !state.deleting) closeDeleteDialog();
+  });
 }
 
 function renderConfig() {
@@ -364,19 +384,107 @@ async function reloadGames() {
   renderGames();
 }
 
-async function deleteGame(game) {
-  const confirmed = window.confirm(`确定删除“${game.name}”吗？ROM、海报告和 JSON 记录会在同一个 commit 中删除。`);
-  if (!confirmed) return;
+function deleteGame(game) {
+  state.pendingDeleteGame = game;
+  state.deleting = false;
+  deleteDialogText.textContent =
+    `确定删除“${game.name}”吗？\n\nROM、海报和 JSON 记录会在同一个 Git commit 中删除，并立即推送到 GitHub。`;
+  deleteConfirmActions.classList.remove('hidden');
+  deleteProgressWrap.classList.add('hidden', 'is-error', 'is-done');
+  deleteProgressBar.style.width = '6%';
+  deleteProgressText.textContent = '正在删除文件并提交到 GitHub...';
+  deleteCloseButton.classList.add('hidden');
+  deleteRetryButton.classList.add('hidden');
+  deleteDialog.classList.remove('hidden');
+  deleteConfirmButton.focus();
+}
+
+async function confirmDelete() {
+  const game = state.pendingDeleteGame;
+  if (!game || state.deleting) return;
   clearMessage();
+  state.deleting = true;
+  deleteConfirmActions.classList.add('hidden');
+  deleteProgressWrap.classList.remove('hidden', 'is-error', 'is-done');
+  deleteProgressText.textContent = '正在删除 JSON 记录、ROM 和海报，并创建 Git commit...';
+  startDeleteProgress();
+
   try {
     const result = await api(`/api/games/${encodeURIComponent(game.id)}`, { method: 'DELETE' });
-    showNotice(`删除成功，commit ${result.commit}。`, 'success');
+    finishDeleteProgress(`删除成功，commit ${result.commit}。正在刷新列表...`);
     if (state.editingId === game.id) clearEditMode();
     await reloadGames();
+    showNotice(`删除成功，commit ${result.commit}。`, 'success');
+    window.setTimeout(closeDeleteDialog, 900);
   } catch (error) {
-    showNotice(error.message, 'error');
+    stopDeleteProgress();
+    deleteProgressWrap.classList.remove('is-done');
+    deleteProgressWrap.classList.add('is-error');
+    deleteProgressText.textContent = error.code === 'PUSH_FAILED'
+      ? `本地删除和 commit 已完成，但推送到 GitHub 失败。\n${error.message}`
+      : `删除失败：${error.message}`;
+    deleteRetryButton.classList.toggle('hidden', error.code !== 'PUSH_FAILED');
+    deleteCloseButton.classList.remove('hidden');
     if (error.code === 'PUSH_FAILED') syncButton.classList.remove('hidden');
+  } finally {
+    state.deleting = false;
   }
+}
+
+async function retryDeletePush() {
+  if (state.deleting) return;
+  state.deleting = true;
+  deleteRetryButton.classList.add('hidden');
+  deleteCloseButton.classList.add('hidden');
+  deleteProgressWrap.classList.remove('is-error', 'is-done');
+  deleteProgressText.textContent = '正在重试推送到 GitHub...';
+  startDeleteProgress();
+  try {
+    await api('/api/sync', { method: 'POST' });
+    finishDeleteProgress('推送成功，游戏已从公开列表删除。');
+    syncButton.classList.add('hidden');
+    await reloadGames();
+    window.setTimeout(closeDeleteDialog, 900);
+  } catch (error) {
+    stopDeleteProgress();
+    deleteProgressWrap.classList.add('is-error');
+    deleteProgressText.textContent = `推送仍然失败：${error.message}`;
+    deleteRetryButton.classList.remove('hidden');
+    deleteCloseButton.classList.remove('hidden');
+  } finally {
+    state.deleting = false;
+  }
+}
+
+function startDeleteProgress() {
+  window.clearInterval(state.deleteTimer);
+  let percent = 8;
+  deleteProgressBar.style.width = `${percent}%`;
+  state.deleteTimer = window.setInterval(() => {
+    percent = Math.min(88, percent + Math.max(1, (90 - percent) * 0.08));
+    deleteProgressBar.style.width = `${percent.toFixed(1)}%`;
+  }, 220);
+}
+
+function stopDeleteProgress() {
+  window.clearInterval(state.deleteTimer);
+  state.deleteTimer = null;
+}
+
+function finishDeleteProgress(message) {
+  stopDeleteProgress();
+  deleteProgressWrap.classList.remove('is-error');
+  deleteProgressWrap.classList.add('is-done');
+  deleteProgressBar.style.width = '100%';
+  deleteProgressText.textContent = message;
+  deleteCloseButton.classList.remove('hidden');
+}
+
+function closeDeleteDialog() {
+  if (state.deleting) return;
+  stopDeleteProgress();
+  deleteDialog.classList.add('hidden');
+  state.pendingDeleteGame = null;
 }
 
 async function retryPush() {

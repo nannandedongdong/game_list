@@ -113,6 +113,31 @@
     </main>
   </div>
 
+  <div id="deleteDialog" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="deleteDialogTitle">
+    <div class="modal-card">
+      <p class="eyebrow">DELETE GAME</p>
+      <h2 id="deleteDialogTitle">删除游戏</h2>
+      <p id="deleteDialogText" class="modal-text"></p>
+
+      <div id="deleteConfirmActions" class="modal-actions">
+        <button id="deleteCancelButton" class="secondary" type="button">取消</button>
+        <button id="deleteConfirmButton" class="danger-solid" type="button">确认删除并提交</button>
+      </div>
+
+      <div id="deleteProgressWrap" class="delete-progress hidden">
+        <div class="delete-progress-track">
+          <div id="deleteProgressBar"></div>
+        </div>
+        <p id="deleteProgressText" class="modal-text">正在删除文件并提交到 GitHub...</p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="deleteRetryButton" class="secondary hidden" type="button">重试推送</button>
+        <button id="deleteCloseButton" class="secondary hidden" type="button">关闭</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/app.js"></script>
 </body>
 </html>
