@@ -12,7 +12,7 @@ const {
 } = require('../src/files');
 
 const gameTypes = {
-  GBA: { catalog: 'gba.json', extensions: ['.gba'] },
+  GBA: { catalog: 'gba.json', extensions: ['.gba', '.zip'] },
   CPS1: { catalog: 'cps1.json', extensions: ['.zip'] },
 };
 
@@ -31,6 +31,33 @@ test('validates ROM extension and preserves buffer', () => {
   );
   assert.equal(result.extension, '.gba');
   assert.equal(result.buffer, buffer);
+});
+
+test('accepts a valid ZIP package for GBA', () => {
+  const result = validateRom(
+    {
+      filename: 'game.zip',
+      buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]),
+      truncated: false,
+    },
+    'GBA',
+    gameTypes,
+    100,
+  );
+  assert.equal(result.extension, '.zip');
+});
+
+test('rejects an invalid ZIP package', () => {
+  assert.throws(
+    () =>
+      validateRom(
+        { filename: 'game.zip', buffer: Buffer.from('not-zip'), truncated: false },
+        'GBA',
+        gameTypes,
+        100,
+      ),
+    /ZIP 游戏包格式无效/,
+  );
 });
 
 test('rejects oversized and mismatched ROMs', () => {

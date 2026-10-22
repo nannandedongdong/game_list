@@ -133,11 +133,12 @@ public/catalog/<类型>.json
 
 - 游戏名称非空且不超过 160 字符；
 - 类型属于 GBA / MD / CPS1 / FC；
-- ROM 扩展名与类型匹配；
-- ROM 不超过 10MB；
+- 游戏包扩展名属于该类型允许范围；
+- GBA / MD / FC / CPS1 均支持 `.zip` 游戏包；
+- 游戏包不超过 10MB；
 - 海报不超过 2MB；
 - 海报必须是 JPG、PNG 或 WebP；
-- CPS1 必须是有效 ZIP 文件头；
+- 扩展名为 `.zip` 时，文件必须是有效 ZIP；
 - SHA-256 与已有 ROM 不重复；
 - 发布时间文件不能已有未提交改动。
 
@@ -180,7 +181,7 @@ git push origin HEAD:main
 |---|---|---|
 | `name` | 是 | 游戏名称 |
 | `game_type` | 新游戏必填 | GBA / MD / CPS1 / FC |
-| `rom` | 是 | ROM 文件 |
+| `rom` | 是 | ROM 或 ZIP 游戏包 |
 | `cover` | 否 | JPG / PNG / WebP |
 | `id` | 更新时必填 | 已有游戏 ID |
 

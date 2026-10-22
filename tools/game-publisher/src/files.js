@@ -87,10 +87,10 @@ function validateRom(file, type, gameTypes, maxBytes) {
     );
   }
 
-  if (type === 'CPS1' && !isZip(file.buffer)) {
-    throw Object.assign(new Error('CPS1 ROM 必须是有效的 ZIP 文件'), {
+  if (extension === '.zip' && !isZip(file.buffer)) {
+    throw Object.assign(new Error(`${type} 的 ZIP 游戏包格式无效`), {
       statusCode: 400,
-      code: 'INVALID_CPS1_ZIP',
+      code: 'INVALID_ZIP',
     });
   }
 

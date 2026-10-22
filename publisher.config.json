@@ -18,11 +18,11 @@
   "gameTypes": {
     "GBA": {
       "catalog": "gba.json",
-      "extensions": [".gba"]
+      "extensions": [".gba", ".zip"]
     },
     "MD": {
       "catalog": "md.json",
-      "extensions": [".md", ".gen", ".smd", ".bin"]
+      "extensions": [".md", ".gen", ".smd", ".bin", ".zip"]
     },
     "CPS1": {
       "catalog": "cps1.json",
@@ -30,7 +30,7 @@
     },
     "FC": {
       "catalog": "fc.json",
-      "extensions": [".nes", ".fds", ".unf"]
+      "extensions": [".nes", ".fds", ".unf", ".zip"]
     }
   }
 }
