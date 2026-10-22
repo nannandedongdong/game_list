@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T09:33:10.556Z",
+  "updated_at": "2026-10-22T09:34:04.598Z",
   "games": [
+    {
+      "id": "cps1-20261022-2047c534",
+      "name": "街头霸王2 冠军版（世界版 920313） [sf2ceea]",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-2047c534/game.zip",
+      "file_name": "街头霸王2 冠军版（世界版 920313） [sf2ceea].zip",
+      "file_size": 3565657,
+      "sha256": "55b9d919ed8e4978fd384e6c00e7cc69eea4b31b5536d79a9b59eedb95708842",
+      "revision": 1,
+      "updated_at": "2026-10-22T09:34:04.598Z"
+    },
     {
       "id": "cps1-20261022-a2628176",
       "name": "惩罚者（世界版 930422） [punisher]",
