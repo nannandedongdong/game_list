@@ -65,6 +65,14 @@ class GamePublisher {
       type = normalizeType(fields.game_type, this.config.gameTypes);
     }
 
+    if (this.config.gameTypes[type].uploadEnabled === false) {
+      throw httpError(
+        403,
+        'UPLOAD_LOCKED',
+        `${type} 游戏库已锁定，不能再上传或更新`,
+      );
+    }
+
     const name = cleanDisplayName(fields.name);
     const hasNewRom = Boolean(files.rom && files.rom.buffer);
     if (!isUpdate && !hasNewRom) {

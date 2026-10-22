@@ -28,7 +28,8 @@
     },
     "CPS1": {
       "catalog": "cps1.json",
-      "extensions": [".zip"]
+      "extensions": [".zip"],
+      "uploadEnabled": false
     },
     "FC": {
       "catalog": "fc.json",

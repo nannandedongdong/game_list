@@ -91,7 +91,11 @@ function loadConfig() {
     if (extensions.length === 0 || extensions.some((ext) => !/^\.[a-z0-9]+$/.test(ext))) {
       fail(`${type}.extensions 配置无效`);
     }
-    normalizedTypes[type] = { catalog, extensions: [...new Set(extensions)] };
+    normalizedTypes[type] = {
+      catalog,
+      extensions: [...new Set(extensions)],
+      uploadEnabled: rawValue.uploadEnabled !== false,
+    };
   }
 
   return {

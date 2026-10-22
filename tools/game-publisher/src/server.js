@@ -41,7 +41,10 @@ function createApp(config, store, publisher) {
       game_types: Object.fromEntries(
         Object.entries(config.gameTypes).map(([type, value]) => [
           type,
-          { extensions: value.extensions },
+          {
+            extensions: value.extensions,
+            upload_enabled: value.uploadEnabled !== false,
+          },
         ]),
       ),
     });

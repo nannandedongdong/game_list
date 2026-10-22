@@ -75,12 +75,32 @@ function bindEvents() {
 
 function renderConfig() {
   const repo = state.config.repository;
+  renderUploadTypes();
   el('repoLink').textContent = repo.url || `${repo.remote}/${repo.branch}`;
   el('repoLink').href = repo.url || '#';
   el('branchLabel').textContent = `${repo.remote} / ${repo.branch} · ${repo.content_root || repo.contentRoot}`;
   el('romHint').textContent = `最大 ${formatLimit(state.config.limits.rom_bytes)}`;
   el('coverHint').textContent = `JPG / PNG / WebP，最大 ${formatLimit(state.config.limits.cover_bytes)}`;
   updateExtensionHint();
+}
+
+function renderUploadTypes() {
+  const current = gameType.value;
+  gameType.replaceChildren();
+  for (const [type, config] of Object.entries(state.config.game_types)) {
+    const option = document.createElement('option');
+    option.value = type;
+    option.disabled = config.upload_enabled === false;
+    option.textContent = config.upload_enabled === false
+      ? `${type}（已锁定）`
+      : type;
+    gameType.append(option);
+  }
+  if (current && state.config.game_types[current]) gameType.value = current;
+  if (gameType.selectedOptions[0]?.disabled) {
+    const firstEnabled = [...gameType.options].find((option) => !option.disabled);
+    if (firstEnabled) gameType.value = firstEnabled.value;
+  }
 }
 
 function renderTypeTabs() {
@@ -112,8 +132,13 @@ function renderExistingOptions() {
 
   for (const game of state.games) {
     const option = document.createElement('option');
+    const uploadEnabled =
+      state.config.game_types[game.game_type]?.upload_enabled !== false;
     option.value = game.id;
-    option.textContent = `[${game.game_type}] ${game.name}`;
+    option.disabled = !uploadEnabled;
+    option.textContent = uploadEnabled
+      ? `[${game.game_type}] ${game.name}`
+      : `[${game.game_type}·已锁定] ${game.name}`;
     existingGame.append(option);
   }
   existingGame.value = selected;
@@ -184,7 +209,11 @@ function createGameRow(game) {
   const edit = document.createElement('button');
   edit.type = 'button';
   edit.className = 'secondary';
-  edit.textContent = '更新';
+  const uploadEnabled =
+    state.config.game_types[game.game_type]?.upload_enabled !== false;
+  edit.disabled = !uploadEnabled;
+  edit.title = uploadEnabled ? '更新游戏' : `${game.game_type} 已锁定，不能上传或更新`;
+  edit.textContent = uploadEnabled ? '更新' : '已锁定';
   edit.addEventListener('click', () => {
     existingGame.value = game.id;
     selectExistingGame(game.id);
