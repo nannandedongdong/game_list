@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "game_type": "FC",
-  "updated_at": null,
-  "games": []
+  "updated_at": "2026-10-22T07:45:59.638Z",
+  "games": [
+    {
+      "id": "fc-20261022-785e1843",
+      "name": "魂斗罗1",
+      "cover_path": null,
+      "rom_path": "../roms/fc/fc-20261022-785e1843/game.zip",
+      "file_name": "魂斗罗.zip",
+      "file_size": 122918,
+      "sha256": "93d73a58053d57b8c1feb16ec4e9a63a232ffb031c5775cac333e87165dec534",
+      "revision": 1,
+      "updated_at": "2026-10-22T07:45:59.638Z"
+    }
+  ]
 }
