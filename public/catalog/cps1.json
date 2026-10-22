@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T05:39:55.346Z",
+  "updated_at": "2026-10-22T06:48:40.040Z",
   "games": [
+    {
+      "id": "cps1-20261022-badc9090",
+      "name": "快打旋风-日版",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-badc9090/game.zip",
+      "file_name": "ffightj.zip",
+      "file_size": 1449119,
+      "sha256": "86976d0702b3abd413fef312f57a06bb248c153c100ff0dd61f5b68bed805a5d",
+      "revision": 1,
+      "updated_at": "2026-10-22T06:48:40.040Z"
+    },
     {
       "id": "cps1-20261022-adb6c1e0",
       "name": "三个奇迹",
