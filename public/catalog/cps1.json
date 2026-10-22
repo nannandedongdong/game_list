@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T07:28:53.844Z",
+  "updated_at": "2026-10-22T08:29:51.067Z",
   "games": [
     {
       "id": "cps1-20261022-7f6a9e88",
@@ -13,17 +13,6 @@
       "sha256": "41e54d65889d9bdf0181b10c73582ba2ca97cf502d5ddb32688f3b39bf0baa13",
       "revision": 2,
       "updated_at": "2026-10-22T07:23:41.982Z"
-    },
-    {
-      "id": "cps1-20261022-badc9090",
-      "name": "ceshiadsf",
-      "cover_path": null,
-      "rom_path": "../roms/cps1/cps1-20261022-badc9090/game.zip",
-      "file_name": "sf2.zip",
-      "file_size": 3551819,
-      "sha256": "4abbfccd30caf163f18064bf8c27b2780f370d67d34ee802999dcbb7e6436a30",
-      "revision": 2,
-      "updated_at": "2026-10-22T07:28:53.844Z"
     },
     {
       "id": "cps1-20261022-adb6c1e0",
