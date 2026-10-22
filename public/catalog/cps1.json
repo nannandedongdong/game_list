@@ -1,6 +1,18 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": null,
-  "games": []
+  "updated_at": "2026-10-22T05:39:55.346Z",
+  "games": [
+    {
+      "id": "cps1-20261022-adb6c1e0",
+      "name": "三个奇迹",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-adb6c1e0/game.zip",
+      "file_name": "3wonders.zip",
+      "file_size": 2479888,
+      "sha256": "3d2d8f0eac16cffadc7499c67aebd182b006f7f8997902e7b14dbfc73eecb39c",
+      "revision": 1,
+      "updated_at": "2026-10-22T05:39:55.346Z"
+    }
+  ]
 }
