@@ -135,10 +135,9 @@ function renderExistingOptions() {
     const uploadEnabled =
       state.config.game_types[game.game_type]?.upload_enabled !== false;
     option.value = game.id;
-    option.disabled = !uploadEnabled;
     option.textContent = uploadEnabled
       ? `[${game.game_type}] ${game.name}`
-      : `[${game.game_type}·已锁定] ${game.name}`;
+      : `[${game.game_type}·仅封面] ${game.name}`;
     existingGame.append(option);
   }
   existingGame.value = selected;
@@ -211,9 +210,10 @@ function createGameRow(game) {
   edit.className = 'secondary';
   const uploadEnabled =
     state.config.game_types[game.game_type]?.upload_enabled !== false;
-  edit.disabled = !uploadEnabled;
-  edit.title = uploadEnabled ? '更新游戏' : `${game.game_type} 已锁定，不能上传或更新`;
-  edit.textContent = uploadEnabled ? '更新' : '已锁定';
+  edit.title = uploadEnabled
+    ? '更新游戏'
+    : `${game.game_type} ROM 已锁定，只能更新封面`;
+  edit.textContent = uploadEnabled ? '更新' : '更新封面';
   edit.addEventListener('click', () => {
     existingGame.value = game.id;
     selectExistingGame(game.id);
@@ -262,16 +262,22 @@ function selectExistingGame(id) {
   state.editingId = id;
   state.autoFilledName = null;
   existingGame.value = id;
+  const uploadEnabled =
+    state.config.game_types[game.game_type]?.upload_enabled !== false;
   gameName.value = game.name;
+  gameName.readOnly = !uploadEnabled;
   gameType.value = game.game_type;
   gameType.disabled = true;
   romFile.value = '';
+  romFile.disabled = !uploadEnabled;
   coverFile.value = '';
   el('coverPreviewWrap').classList.add('hidden');
   romFile.required = false;
   el('romRequired').classList.add('hidden');
-  el('romLabel').childNodes[0].nodeValue = '替换 ROM / ZIP 游戏包 ';
-  submitButton.textContent = '保存修改';
+  el('romLabel').childNodes[0].nodeValue = uploadEnabled
+    ? '替换 ROM / ZIP 游戏包 '
+    : 'ROM / ZIP 游戏包 已锁定 ';
+  submitButton.textContent = uploadEnabled ? '保存修改' : '保存封面';
   newGameButton.classList.remove('hidden');
   el('currentRom').classList.remove('hidden');
   el('currentRomName').textContent = game.file_name;
@@ -280,9 +286,13 @@ function selectExistingGame(id) {
   el('currentRomLink').href = game.public.rom || '#';
   el('selectedCover').classList.remove('hidden');
   el('selectedCover').textContent = game.cover_path
-    ? `当前海报会保留；选择新海报后替换。`
+    ? uploadEnabled
+      ? '当前海报会保留；选择新海报后替换。'
+      : '当前海报会保留；选择新海报后替换，ROM 和名称不可修改。'
     : '当前没有海报；可以选择一个。';
-  el('romHint').textContent = '不选择新文件则保留当前 ROM。';
+  el('romHint').textContent = uploadEnabled
+    ? '不选择新文件则保留当前 ROM。'
+    : `${game.game_type} ROM 已锁定，仅允许更新封面。`;
   updateExtensionHint();
 }
 
@@ -292,6 +302,8 @@ function clearEditMode() {
   gameForm.reset();
   existingGame.value = '';
   gameType.disabled = false;
+  gameName.readOnly = false;
+  romFile.disabled = false;
   romFile.required = true;
   el('romRequired').classList.remove('hidden');
   el('romLabel').childNodes[0].nodeValue = 'ROM / ZIP 游戏包 ';
@@ -358,6 +370,10 @@ async function handleSubmit(event) {
   event.preventDefault();
   clearMessage();
   const rom = romFile.files?.[0];
+  if (rom && isUploadLocked()) {
+    showNotice(`${gameType.value} ROM 已锁定，只能更新封面。`, 'error');
+    return;
+  }
   if (!rom && !state.editingId) {
     showNotice('新游戏必须选择 ROM 或 ZIP 游戏包。', 'error');
     return;
@@ -568,7 +584,9 @@ function setBusy(busy) {
   submitButton.textContent = busy
     ? '正在保存并推送...'
     : state.editingId
-      ? '保存修改'
+      ? isUploadLocked()
+        ? '保存封面'
+        : '保存修改'
       : '上传并发布';
   progress.classList.toggle('hidden', !busy);
   if (!busy) progressBar.style.width = '0%';
@@ -581,6 +599,10 @@ function showNotice(message, kind = 'info', timeout = 0) {
     window.clearTimeout(showNotice.timer);
     showNotice.timer = window.setTimeout(clearMessage, timeout);
   }
+}
+
+function isUploadLocked(type = gameType.value) {
+  return state.config?.game_types?.[type]?.upload_enabled === false;
 }
 
 function clearMessage() {

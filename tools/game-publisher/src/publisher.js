@@ -65,16 +65,29 @@ class GamePublisher {
       type = normalizeType(fields.game_type, this.config.gameTypes);
     }
 
-    if (this.config.gameTypes[type].uploadEnabled === false) {
+    const hasNewRom = Boolean(files.rom && files.rom.buffer);
+    const uploadLocked = this.config.gameTypes[type].uploadEnabled === false;
+    const lockedOriginalName =
+      isUpdate && uploadLocked ? existing.game.name : null;
+    if (uploadLocked && !isUpdate) {
+      throw httpError(403, 'UPLOAD_LOCKED', `${type} 游戏库已锁定，不能新增`);
+    }
+    if (uploadLocked && hasNewRom) {
       throw httpError(
         403,
-        'UPLOAD_LOCKED',
-        `${type} 游戏库已锁定，不能再上传或更新`,
+        'ROM_UPLOAD_LOCKED',
+        `${type} 的 ROM 已锁定，只能更新封面`,
       );
     }
 
     const name = cleanDisplayName(fields.name);
-    const hasNewRom = Boolean(files.rom && files.rom.buffer);
+    if (lockedOriginalName !== null && name !== lockedOriginalName) {
+      throw httpError(
+        403,
+        'CPS1_NAME_LOCKED',
+        `${type} 游戏名称和 ROM 已锁定，只能更新封面`,
+      );
+    }
     if (!isUpdate && !hasNewRom) {
       throw httpError(400, 'MISSING_ROM', '新游戏必须选择 ROM 或 ZIP 游戏包');
     }
