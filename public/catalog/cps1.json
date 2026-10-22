@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T09:32:33.880Z",
+  "updated_at": "2026-10-22T09:33:10.556Z",
   "games": [
+    {
+      "id": "cps1-20261022-a2628176",
+      "name": "惩罚者（世界版 930422） [punisher]",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-a2628176/game.zip",
+      "file_name": "惩罚者（世界版 930422） [punisher].zip",
+      "file_size": 4042628,
+      "sha256": "d959b9e3b1dced95f5ef55f01189e6da0c9006d02ceb4d564df85aa5f35e440d",
+      "revision": 1,
+      "updated_at": "2026-10-22T09:33:10.556Z"
+    },
     {
       "id": "cps1-20261022-7f6a9e88",
       "name": "圆桌骑士-世界版",
