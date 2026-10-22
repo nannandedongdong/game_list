@@ -1,0 +1,5 @@
+tools/game-publisher/node_modules/
+tools/game-publisher/.env
+tools/game-publisher/config.local.json
+.DS_Store
+*.log

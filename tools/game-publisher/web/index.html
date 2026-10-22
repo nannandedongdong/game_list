@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game List Publisher</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">GAME LIST</p>
+        <h1>游戏发布后台</h1>
+        <p class="subtitle">上传后立即写入 GitHub 公开目录，并创建一次 Git 提交。</p>
+      </div>
+      <div class="repo-card">
+        <span>发布仓库</span>
+        <a id="repoLink" href="#" target="_blank" rel="noreferrer">读取中...</a>
+        <code id="branchLabel">main</code>
+      </div>
+    </header>
+
+    <div id="notice" class="notice hidden" role="status"></div>
+
+    <main class="layout">
+      <section class="panel form-panel">
+        <div class="panel-title">
+          <div>
+            <p class="eyebrow">PUBLISH</p>
+            <h2>上传 / 更新游戏</h2>
+          </div>
+          <button id="newGameButton" class="text-button hidden" type="button">取消更新</button>
+        </div>
+
+        <form id="gameForm">
+          <label>
+            <span>更新已有游戏</span>
+            <select id="existingGame">
+              <option value="">新游戏</option>
+            </select>
+          </label>
+
+          <label>
+            <span>游戏名称</span>
+            <input id="gameName" name="name" maxlength="160" required placeholder="例如：热血硬派国夫君SP 汉化版V1.0">
+          </label>
+
+          <label>
+            <span>游戏类型</span>
+            <select id="gameType" name="game_type" required>
+              <option value="GBA">GBA</option>
+              <option value="MD">MD</option>
+              <option value="CPS1">CPS1</option>
+              <option value="FC">FC</option>
+            </select>
+            <small id="extensionHint"></small>
+          </label>
+
+          <label>
+            <span>ROM 文件 <b>必填</b></span>
+            <input id="romFile" name="rom" type="file" required>
+            <small id="romHint">最大 10MB</small>
+          </label>
+
+          <label>
+            <span>游戏海报 <b class="muted">可选</b></span>
+            <input id="coverFile" name="cover" type="file" accept="image/jpeg,image/png,image/webp">
+            <small id="coverHint">JPG / PNG / WebP，最大 2MB</small>
+          </label>
+
+          <div id="coverPreviewWrap" class="cover-preview hidden">
+            <img id="coverPreview" alt="海报预览">
+            <div>
+              <strong>海报预览</strong>
+              <span id="coverPreviewMeta"></span>
+            </div>
+          </div>
+
+          <div id="selectedCover" class="selected-cover hidden"></div>
+
+          <div class="form-actions">
+            <button id="submitButton" class="primary" type="submit">上传并发布</button>
+            <button id="syncButton" class="secondary hidden" type="button">重试推送</button>
+          </div>
+          <div id="uploadProgress" class="progress hidden">
+            <div id="progressBar"></div>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel list-panel">
+        <div class="panel-title list-heading">
+          <div>
+            <p class="eyebrow">CATALOG</p>
+            <h2>在线游戏</h2>
+          </div>
+          <span id="gameCount" class="count-pill">0 个游戏</span>
+        </div>
+
+        <div id="typeTabs" class="type-tabs"></div>
+        <div id="gameList" class="game-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
