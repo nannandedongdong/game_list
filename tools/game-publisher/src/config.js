@@ -41,6 +41,10 @@ function loadConfig() {
   );
   const romBytes = Number(limits.romBytes || 10 * 1024 * 1024);
   const coverBytes = Number(limits.coverBytes || 2 * 1024 * 1024);
+  const zipMaxEntries = Number(limits.zipMaxEntries || 2048);
+  const zipMaxUncompressedBytes = Number(
+    limits.zipMaxUncompressedBytes || 128 * 1024 * 1024,
+  );
 
   if (!Number.isInteger(port) || port < 1 || port > 65535) {
     fail('server.port 必须是 1-65535 的整数');
@@ -56,6 +60,15 @@ function loadConfig() {
   }
   if (!Number.isSafeInteger(coverBytes) || coverBytes < 1) {
     fail('limits.coverBytes 必须是正整数');
+  }
+  if (!Number.isSafeInteger(zipMaxEntries) || zipMaxEntries < 1) {
+    fail('limits.zipMaxEntries 必须是正整数');
+  }
+  if (
+    !Number.isSafeInteger(zipMaxUncompressedBytes) ||
+    zipMaxUncompressedBytes < 1
+  ) {
+    fail('limits.zipMaxUncompressedBytes 必须是正整数');
   }
   if (Object.keys(gameTypes).length === 0) {
     fail('gameTypes 不能为空');
@@ -94,6 +107,8 @@ function loadConfig() {
     fallbackPublicBaseUrl,
     romBytes,
     coverBytes,
+    zipMaxEntries,
+    zipMaxUncompressedBytes,
     gameTypes: normalizedTypes,
   };
 }

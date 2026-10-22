@@ -65,12 +65,22 @@ class GamePublisher {
     }
 
     const name = cleanDisplayName(fields.name);
-    const rom = validateRom(
-      files.rom,
-      type,
-      this.config.gameTypes,
-      this.config.romBytes,
-    );
+    const hasNewRom = Boolean(files.rom && files.rom.buffer);
+    if (!isUpdate && !hasNewRom) {
+      throw httpError(400, 'MISSING_ROM', '新游戏必须选择 ROM 或 ZIP 游戏包');
+    }
+    const rom = hasNewRom
+      ? await validateRom(
+          files.rom,
+          type,
+          this.config.gameTypes,
+          this.config.romBytes,
+          {
+            maxEntries: this.config.zipMaxEntries,
+            maxUncompressedBytes: this.config.zipMaxUncompressedBytes,
+          },
+        )
+      : null;
     const coverExtension = detectCoverExtension(
       files.cover,
       this.config.coverBytes,
@@ -80,9 +90,11 @@ class GamePublisher {
     const relativeCatalogPath = this.toRelative(catalogPath);
     const initialPaths = [relativeCatalogPath];
     if (isUpdate) {
-      initialPaths.push(
-        this.toRelative(this.store.gameDirectory(type, 'rom', requestedId)),
-      );
+      if (rom) {
+        initialPaths.push(
+          this.toRelative(this.store.gameDirectory(type, 'rom', requestedId)),
+        );
+      }
       if (coverExtension) {
         initialPaths.push(
           this.toRelative(this.store.gameDirectory(type, 'cover', requestedId)),
@@ -104,21 +116,23 @@ class GamePublisher {
     }
 
     const id = isUpdate ? requestedId : this.uniqueGameId(type);
-    const romDigest = sha256(rom.buffer);
-    const duplicate = this.store.findDuplicateHash(romDigest, id);
-    if (duplicate) {
-      throw httpError(
-        409,
-        'DUPLICATE_ROM',
-        `相同 ROM 已存在于 ${duplicate.game_type} / ${duplicate.name}`,
-      );
+    const romDigest = rom ? sha256(rom.buffer) : null;
+    if (rom) {
+      const duplicate = this.store.findDuplicateHash(romDigest, id);
+      if (duplicate) {
+        throw httpError(
+          409,
+          'DUPLICATE_ROM',
+          `相同 ROM 已存在于 ${duplicate.game_type} / ${duplicate.name}`,
+        );
+      }
     }
 
     const now = new Date().toISOString();
     const catalog = this.store.readCatalog(type);
     const romDirectory = this.store.gameDirectory(type, 'rom', id);
     const coverDirectory = this.store.gameDirectory(type, 'cover', id);
-    const romPath = this.store.romFile(type, id, rom.extension);
+    const romPath = rom ? this.store.romFile(type, id, rom.extension) : null;
     const coverPath = coverExtension
       ? this.store.coverFile(type, id, coverExtension)
       : null;
@@ -137,10 +151,12 @@ class GamePublisher {
         cover_path: coverExtension
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : previous.cover_path || null,
-        rom_path: this.store.catalogRelativeRomPath(type, id, rom.extension),
-        file_name: safeFileName(files.rom.filename),
-        file_size: rom.buffer.length,
-        sha256: romDigest,
+        rom_path: rom
+          ? this.store.catalogRelativeRomPath(type, id, rom.extension)
+          : previous.rom_path,
+        file_name: rom ? safeFileName(files.rom.filename) : previous.file_name,
+        file_size: rom ? rom.buffer.length : previous.file_size,
+        sha256: romDigest || previous.sha256,
         revision: Number(previous.revision || 0) + 1,
         updated_at: now,
       };
@@ -160,16 +176,19 @@ class GamePublisher {
       };
     }
 
-    const affectedAbsolutePaths = [catalogPath, romDirectory];
-    if (coverExtension || isUpdate) affectedAbsolutePaths.push(coverDirectory);
+    const affectedAbsolutePaths = [catalogPath];
+    if (rom) affectedAbsolutePaths.push(romDirectory);
+    if (coverExtension) affectedAbsolutePaths.push(coverDirectory);
     const transaction = this.createTransaction(affectedAbsolutePaths);
     let committed = false;
 
     try {
-      fs.mkdirSync(romDirectory, { recursive: true });
-      fs.rmSync(romDirectory, { recursive: true, force: true });
-      fs.mkdirSync(romDirectory, { recursive: true });
-      fs.writeFileSync(romPath, rom.buffer);
+      if (rom) {
+        fs.mkdirSync(romDirectory, { recursive: true });
+        fs.rmSync(romDirectory, { recursive: true, force: true });
+        fs.mkdirSync(romDirectory, { recursive: true });
+        fs.writeFileSync(romPath, rom.buffer);
+      }
 
       if (coverExtension) {
         fs.rmSync(coverDirectory, { recursive: true, force: true });
@@ -185,10 +204,8 @@ class GamePublisher {
       catalog.updated_at = now;
       this.store.writeCatalog(type, catalog);
 
-      const commitPaths = [
-        relativeCatalogPath,
-        this.toRelative(romDirectory),
-      ];
+      const commitPaths = [relativeCatalogPath];
+      if (rom) commitPaths.push(this.toRelative(romDirectory));
       if (coverExtension) commitPaths.push(this.toRelative(coverDirectory));
 
       const action = isUpdate ? 'update' : 'add';
@@ -202,6 +219,22 @@ class GamePublisher {
       return {
         ok: true,
         game: { ...game, game_type: type },
+        package: rom
+          ? rom.archive
+            ? {
+                format: 'zip',
+                detected_type: rom.archive.detectedType,
+                detection: rom.archive.detection,
+                entry_count: rom.archive.entryCount,
+                uncompressed_size: rom.archive.uncompressedSize,
+              }
+            : { format: rom.extension.replace(/^\./, '') }
+          : {
+              format: String(
+                game.rom_path.split('.').pop() || 'preserved',
+              ).toLowerCase(),
+              preserved: true,
+            },
         commit: commitResult.commit,
         pushed: true,
         public: this.store.publicGameUrls(type, game),

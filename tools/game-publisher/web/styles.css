@@ -138,6 +138,18 @@ button.text-button { border: 0; background: transparent; color: var(--primary); 
 .cover-preview div { display: grid; gap: 3px; }
 .cover-preview span, .selected-cover { color: var(--muted); font-size: 12px; }
 .selected-cover { display: block; overflow-wrap: anywhere; }
+.current-file {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #d9e4f7;
+  border-radius: 14px;
+  background: #f5f9ff;
+}
+.current-file-main { display: grid; gap: 2px; min-width: 0; }
+.current-file-main span { overflow-wrap: anywhere; font-weight: 700; }
+.current-file-main small { color: var(--muted); }
+.current-file a { font-size: 12px; font-weight: 700; }
 
 .progress { height: 8px; border-radius: 99px; overflow: hidden; background: #e9eef6; }
 #progressBar { width: 0%; height: 100%; background: linear-gradient(90deg, #6ba0ff, var(--primary)); transition: width .16s ease; }

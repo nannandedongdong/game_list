@@ -35,6 +35,8 @@ function createApp(config, store, publisher) {
       limits: {
         rom_bytes: config.romBytes,
         cover_bytes: config.coverBytes,
+        zip_max_entries: config.zipMaxEntries,
+        zip_max_uncompressed_bytes: config.zipMaxUncompressedBytes,
       },
       game_types: Object.fromEntries(
         Object.entries(config.gameTypes).map(([type, value]) => [

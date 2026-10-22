@@ -214,13 +214,24 @@ function selectExistingGame(id) {
   gameName.value = game.name;
   gameType.value = game.game_type;
   gameType.disabled = true;
-  romFile.required = true;
-  submitButton.textContent = '替换 ROM 并发布';
+  romFile.value = '';
+  coverFile.value = '';
+  el('coverPreviewWrap').classList.add('hidden');
+  romFile.required = false;
+  el('romRequired').classList.add('hidden');
+  el('romLabel').childNodes[0].nodeValue = '替换 ROM / ZIP 游戏包 ';
+  submitButton.textContent = '保存修改';
   newGameButton.classList.remove('hidden');
+  el('currentRom').classList.remove('hidden');
+  el('currentRomName').textContent = game.file_name;
+  el('currentRomMeta').textContent =
+    `${formatBytes(game.file_size)} · SHA-256 ${shortHash(game.sha256)}`;
+  el('currentRomLink').href = game.public.rom || '#';
   el('selectedCover').classList.remove('hidden');
   el('selectedCover').textContent = game.cover_path
     ? `当前海报会保留；选择新海报后替换。`
     : '当前没有海报；可以选择一个。';
+  el('romHint').textContent = '不选择新文件则保留当前 ROM。';
   updateExtensionHint();
 }
 
@@ -229,10 +240,17 @@ function clearEditMode() {
   gameForm.reset();
   existingGame.value = '';
   gameType.disabled = false;
+  romFile.required = true;
+  el('romRequired').classList.remove('hidden');
+  el('romLabel').childNodes[0].nodeValue = 'ROM / ZIP 游戏包 ';
   submitButton.textContent = '上传并发布';
   newGameButton.classList.add('hidden');
+  el('currentRom').classList.add('hidden');
   el('selectedCover').classList.add('hidden');
   el('coverPreviewWrap').classList.add('hidden');
+  el('romHint').textContent = state.config
+    ? `最大 ${formatLimit(state.config.limits.rom_bytes)}`
+    : '最大 10MB';
   updateExtensionHint();
 }
 
@@ -268,15 +286,15 @@ async function handleSubmit(event) {
   event.preventDefault();
   clearMessage();
   const rom = romFile.files?.[0];
-  if (!rom) {
-    showNotice('请选择 ROM 文件。', 'error');
+  if (!rom && !state.editingId) {
+    showNotice('新游戏必须选择 ROM 或 ZIP 游戏包。', 'error');
     return;
   }
 
   const maxRom = state.config.limits.rom_bytes;
   const maxCover = state.config.limits.cover_bytes;
-  if (rom.size > maxRom) {
-    showNotice(`ROM 超过 ${formatLimit(maxRom)}。`, 'error');
+  if (rom && rom.size > maxRom) {
+    showNotice(`游戏包超过 ${formatLimit(maxRom)}。`, 'error');
     return;
   }
   if (coverFile.files?.[0] && coverFile.files[0].size > maxCover) {
@@ -287,15 +305,20 @@ async function handleSubmit(event) {
   const form = new FormData();
   form.append('name', gameName.value.trim());
   form.append('game_type', gameType.value);
-  form.append('rom', rom, rom.name);
+  if (rom) form.append('rom', rom, rom.name);
   if (state.editingId) form.append('id', state.editingId);
   if (coverFile.files?.[0]) form.append('cover', coverFile.files[0], coverFile.files[0].name);
 
   setBusy(true);
   try {
     const result = await upload('/api/games', form);
+    const packageSummary = result.package?.preserved
+      ? `已保留原有 ${result.package.format.toUpperCase()} 游戏包。`
+      : result.package?.format === 'zip'
+        ? `ZIP 内容识别为 ${result.package.detected_type}，共 ${result.package.entry_count} 个文件。`
+        : `游戏包格式：${result.package?.format || 'unknown'}。`;
     showNotice(
-      `发布成功，commit ${result.commit}。\n手机端列表：${result.public.catalog}`,
+      `发布成功，commit ${result.commit}。\n${packageSummary}\n手机端列表：${result.public.catalog}`,
       'success',
     );
     await reloadGames();
@@ -383,9 +406,9 @@ async function api(url, options = {}) {
 function setBusy(busy) {
   submitButton.disabled = busy;
   submitButton.textContent = busy
-    ? '正在上传并推送...'
+    ? '正在保存并推送...'
     : state.editingId
-      ? '替换 ROM 并发布'
+      ? '保存修改'
       : '上传并发布';
   progress.classList.toggle('hidden', !busy);
   if (!busy) progressBar.style.width = '0%';

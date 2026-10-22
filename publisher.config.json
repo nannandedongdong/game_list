@@ -13,7 +13,9 @@
   "fallbackPublicBaseUrl": "https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public",
   "limits": {
     "romBytes": 10485760,
-    "coverBytes": 2097152
+    "coverBytes": 2097152,
+    "zipMaxEntries": 2048,
+    "zipMaxUncompressedBytes": 134217728
   },
   "gameTypes": {
     "GBA": {

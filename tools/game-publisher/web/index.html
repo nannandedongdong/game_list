@@ -58,10 +58,19 @@
           </label>
 
           <label>
-            <span>ROM 文件 <b>必填</b></span>
-            <input id="romFile" name="rom" type="file" required>
+            <span id="romLabel">ROM / ZIP 游戏包 <b id="romRequired">必填</b></span>
+            <input id="romFile" name="rom" type="file">
             <small id="romHint">最大 10MB</small>
           </label>
+
+          <div id="currentRom" class="current-file hidden">
+            <div class="current-file-main">
+              <strong>当前 ROM</strong>
+              <span id="currentRomName"></span>
+              <small id="currentRomMeta"></small>
+            </div>
+            <a id="currentRomLink" href="#" target="_blank" rel="noreferrer">下载当前 ROM</a>
+          </div>
 
           <label>
             <span>游戏海报 <b class="muted">可选</b></span>

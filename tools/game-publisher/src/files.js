@@ -3,6 +3,7 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { inspectZip } = require('./zip-inspect');
 
 function normalizeType(value, gameTypes) {
   const type = String(value || '').trim().toUpperCase();
@@ -51,7 +52,7 @@ function validateGameId(id) {
   return /^[a-z0-9]+-\d{8}-[a-f0-9]{8}$/.test(String(id || ''));
 }
 
-function validateRom(file, type, gameTypes, maxBytes) {
+async function validateRom(file, type, gameTypes, maxBytes, zipLimits = {}) {
   if (!file || !file.buffer) {
     throw Object.assign(new Error('必须选择 ROM 文件'), {
       statusCode: 400,
@@ -87,29 +88,19 @@ function validateRom(file, type, gameTypes, maxBytes) {
     );
   }
 
-  if (extension === '.zip' && !isZip(file.buffer)) {
-    throw Object.assign(new Error(`${type} 的 ZIP 游戏包格式无效`), {
-      statusCode: 400,
-      code: 'INVALID_ZIP',
-    });
+  let archive = null;
+  if (extension === '.zip') {
+    archive = await inspectZip(file.buffer, type, zipLimits);
   }
 
   return {
     extension,
     filename: file.filename,
     buffer: file.buffer,
+    archive,
   };
 }
 
-function isZip(buffer) {
-  return (
-    buffer.length >= 4 &&
-    buffer[0] === 0x50 &&
-    buffer[1] === 0x4b &&
-    (buffer[2] === 0x03 || buffer[2] === 0x05 || buffer[2] === 0x07) &&
-    (buffer[3] === 0x04 || buffer[3] === 0x06 || buffer[3] === 0x08)
-  );
-}
 
 function detectCoverExtension(file, maxBytes) {
   if (!file || !file.buffer) return null;

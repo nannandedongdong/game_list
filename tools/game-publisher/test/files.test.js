@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const yazl = require('yazl');
 const {
   detectCoverExtension,
   makeGameId,
@@ -13,7 +14,9 @@ const {
 
 const gameTypes = {
   GBA: { catalog: 'gba.json', extensions: ['.gba', '.zip'] },
+  MD: { catalog: 'md.json', extensions: ['.md', '.bin', '.zip'] },
   CPS1: { catalog: 'cps1.json', extensions: ['.zip'] },
+  FC: { catalog: 'fc.json', extensions: ['.nes', '.zip'] },
 };
 
 test('normalizes supported game types', () => {
@@ -21,9 +24,9 @@ test('normalizes supported game types', () => {
   assert.throws(() => normalizeType('SNES', gameTypes), /不支持/);
 });
 
-test('validates ROM extension and preserves buffer', () => {
+test('validates ROM extension and preserves buffer', async () => {
   const buffer = Buffer.from('rom');
-  const result = validateRom(
+  const result = await validateRom(
     { filename: 'game.gba', buffer, truncated: false },
     'GBA',
     gameTypes,
@@ -33,35 +36,8 @@ test('validates ROM extension and preserves buffer', () => {
   assert.equal(result.buffer, buffer);
 });
 
-test('accepts a valid ZIP package for GBA', () => {
-  const result = validateRom(
-    {
-      filename: 'game.zip',
-      buffer: Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00]),
-      truncated: false,
-    },
-    'GBA',
-    gameTypes,
-    100,
-  );
-  assert.equal(result.extension, '.zip');
-});
-
-test('rejects an invalid ZIP package', () => {
-  assert.throws(
-    () =>
-      validateRom(
-        { filename: 'game.zip', buffer: Buffer.from('not-zip'), truncated: false },
-        'GBA',
-        gameTypes,
-        100,
-      ),
-    /ZIP 游戏包格式无效/,
-  );
-});
-
-test('rejects oversized and mismatched ROMs', () => {
-  assert.throws(
+test('rejects oversized and mismatched ROMs', async () => {
+  await assert.rejects(
     () =>
       validateRom(
         { filename: 'game.gba', buffer: Buffer.alloc(11), truncated: false },
@@ -71,7 +47,7 @@ test('rejects oversized and mismatched ROMs', () => {
       ),
     /大小限制/,
   );
-  assert.throws(
+  await assert.rejects(
     () =>
       validateRom(
         { filename: 'game.gba', buffer: Buffer.from('rom'), truncated: false },
@@ -103,3 +79,115 @@ test('creates parseable game IDs and stable SHA-256 values', () => {
     'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
   );
 });
+
+test('detects GBA, MD and FC headers inside ZIP archives', async () => {
+  const gba = await validateRom(
+    await zipFile('game.zip', { 'game.gba': makeGba() }),
+    'GBA',
+    gameTypes,
+    1024 * 1024,
+  );
+  assert.equal(gba.archive.detectedType, 'GBA');
+
+  const md = await validateRom(
+    await zipFile('game.zip', { 'roms/game.bin': makeMd() }),
+    'MD',
+    gameTypes,
+    1024 * 1024,
+  );
+  assert.equal(md.archive.detectedType, 'MD');
+
+  const fc = await validateRom(
+    await zipFile('game.zip', { 'game.nes': makeFc() }),
+    'FC',
+    gameTypes,
+    1024 * 1024,
+  );
+  assert.equal(fc.archive.detectedType, 'FC');
+});
+
+test('rejects a ZIP whose detected type does not match the selection', async () => {
+  const archive = await zipFile('game.zip', { 'game.gba': makeGba() });
+  await assert.rejects(
+    () => validateRom(archive, 'MD', gameTypes, 1024 * 1024),
+    /识别为 GBA/,
+  );
+});
+
+test('rejects a ZIP containing mixed game types', async () => {
+  const archive = await zipFile('game.zip', {
+    'game.gba': makeGba(),
+    'game.md': makeMd(),
+  });
+  await assert.rejects(
+    () => validateRom(archive, 'GBA', gameTypes, 1024 * 1024),
+    /多种游戏类型/,
+  );
+});
+
+test('accepts an arcade-style CPS1 ZIP with untyped data files', async () => {
+  const result = await validateRom(
+    await zipFile('game.zip', {
+      'sf2ce.03': Buffer.from('arcade-data-a'),
+      'sf2ce.04': Buffer.from('arcade-data-b'),
+      'sf2ce.11m': Buffer.from('arcade-data-c'),
+    }),
+    'CPS1',
+    gameTypes,
+    1024 * 1024,
+  );
+  assert.equal(result.archive.detectedType, 'CPS1');
+  assert.equal(result.archive.detection, 'arcade-archive');
+});
+
+test('rejects invalid ZIP contents', async () => {
+  const archive = await zipFile('game.zip', {
+    'readme.txt': Buffer.from('hello'),
+  });
+  await assert.rejects(
+    () => validateRom(archive, 'GBA', gameTypes, 1024 * 1024),
+    /未找到可识别/,
+  );
+});
+
+function makeGba() {
+  const buffer = Buffer.alloc(0xc0);
+  buffer[4] = 0x24;
+  buffer[5] = 0xff;
+  buffer[6] = 0xae;
+  buffer[7] = 0x51;
+  buffer[0xb2] = 0x96;
+  return buffer;
+}
+
+function makeMd() {
+  const buffer = Buffer.alloc(0x110);
+  buffer.write('SEGA MEGA DRIVE ', 0x100, 'ascii');
+  return buffer;
+}
+
+function makeFc() {
+  return Buffer.from([0x4e, 0x45, 0x53, 0x1a, ...Buffer.alloc(28)]);
+}
+
+async function zipFile(filename, entries) {
+  return {
+    filename,
+    buffer: await createZip(entries),
+    truncated: false,
+  };
+}
+
+function createZip(entries) {
+  return new Promise((resolve, reject) => {
+    const zip = new yazl.ZipFile();
+    const chunks = [];
+    for (const [name, data] of Object.entries(entries)) {
+      zip.addBuffer(data, name);
+    }
+    zip.outputStream.on('data', (chunk) => chunks.push(chunk));
+    zip.outputStream.on('error', reject);
+    zip.outputStream.on('end', () => resolve(Buffer.concat(chunks)));
+    zip.end();
+  });
+}

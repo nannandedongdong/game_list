@@ -78,6 +78,8 @@ publisher.config.json
 | `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 jsDelivr 备用根地址 |
 | `limits.romBytes` | 单 ROM 上限，默认 10MB |
 | `limits.coverBytes` | 单海报上限，默认 2MB |
+| `limits.zipMaxEntries` | ZIP 内文件数量上限，默认 2048 |
+| `limits.zipMaxUncompressedBytes` | ZIP 解压后总大小上限，默认 128MB |
 | `gameTypes` | 类型、JSON 文件名、允许的 ROM 扩展名 |
 
 临时覆盖配置可使用环境变量：
@@ -102,14 +104,17 @@ public/catalog/<类型>.json
 
 ### 更新游戏
 
-页面选择已有游戏后可以：
+页面选择已有游戏后，左侧会显示当前 ROM 的文件名、大小、SHA-256 和下载链接，并可以：
 
 - 修改游戏名称；
-- 替换 ROM；
+- 不重新选择 ROM，直接保留当前 ROM；
+- 选择新 ROM / ZIP 时替换当前游戏包；
 - 可选替换海报；
 - 不能修改游戏类型。
 
-更新不保留旧 ROM 版本，直接覆盖固定路径，`revision` 自动加 1。
+浏览器不允许把旧文件自动填回文件选择框，因此更新时 ROM 输入变为可选。没有选择新文件就保持原 ROM 不变。
+
+替换 ROM 时不保留旧版本，直接覆盖固定路径，`revision` 自动加 1。
 
 ### 删除游戏
 
@@ -139,6 +144,9 @@ public/catalog/<类型>.json
 - 海报不超过 2MB；
 - 海报必须是 JPG、PNG 或 WebP；
 - 扩展名为 `.zip` 时，文件必须是有效 ZIP；
+- ZIP 会被主动检查，GBA/MD/FC 通过文件头识别，CPS1 支持多文件街机包；
+- ZIP 内容与所选类型不一致、混装多种类型、嵌套 ZIP、加密 ZIP 或异常路径会被拒绝；
+- ZIP 解压后总体积和解压文件数量有安全上限；
 - SHA-256 与已有 ROM 不重复；
 - 发布时间文件不能已有未提交改动。
 
@@ -181,7 +189,7 @@ git push origin HEAD:main
 |---|---|---|
 | `name` | 是 | 游戏名称 |
 | `game_type` | 新游戏必填 | GBA / MD / CPS1 / FC |
-| `rom` | 是 | ROM 或 ZIP 游戏包 |
+| `rom` | 新游戏必填；更新时可选 | ROM 或 ZIP 游戏包；更新时不传表示保留当前 ROM |
 | `cover` | 否 | JPG / PNG / WebP |
 | `id` | 更新时必填 | 已有游戏 ID |
 
