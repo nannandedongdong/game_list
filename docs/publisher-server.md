@@ -74,7 +74,8 @@ publisher.config.json
 | `repository.branch` | 发布分支，默认 `main` |
 | `repository.contentRoot` | 公开文件目录，默认 `public` |
 | `repository.githubUrl` | 页面显示的 GitHub 地址 |
-| `publicBaseUrl` | 手机端访问的公开根地址 |
+| `publicBaseUrl` | 手机端优先访问的公开根地址 |
+| `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 jsDelivr 备用根地址 |
 | `limits.romBytes` | 单 ROM 上限，默认 10MB |
 | `limits.coverBytes` | 单海报上限，默认 2MB |
 | `gameTypes` | 类型、JSON 文件名、允许的 ROM 扩展名 |

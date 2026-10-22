@@ -35,6 +35,10 @@ function loadConfig() {
   const branch = String(repository.branch || 'main');
   const contentRoot = String(repository.contentRoot || 'public');
   const publicBaseUrl = String(parsed.publicBaseUrl || '').replace(/\/+$/, '');
+  const fallbackPublicBaseUrl = String(parsed.fallbackPublicBaseUrl || '').replace(
+    /\/+$/,
+    '',
+  );
   const romBytes = Number(limits.romBytes || 10 * 1024 * 1024);
   const coverBytes = Number(limits.coverBytes || 2 * 1024 * 1024);
 
@@ -43,6 +47,9 @@ function loadConfig() {
   }
   if (!publicBaseUrl.startsWith('https://')) {
     fail('publicBaseUrl 必须是 HTTPS 地址');
+  }
+  if (fallbackPublicBaseUrl && !fallbackPublicBaseUrl.startsWith('https://')) {
+    fail('fallbackPublicBaseUrl 必须是 HTTPS 地址');
   }
   if (!Number.isSafeInteger(romBytes) || romBytes < 1) {
     fail('limits.romBytes 必须是正整数');
@@ -84,6 +91,7 @@ function loadConfig() {
     contentRoot,
     githubUrl: String(repository.githubUrl || ''),
     publicBaseUrl,
+    fallbackPublicBaseUrl,
     romBytes,
     coverBytes,
     gameTypes: normalizedTypes,

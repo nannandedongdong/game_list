@@ -10,11 +10,19 @@
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public
 ```
 
-入口索引：
+入口索引（优先）：
 
 ```text
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
+
+CDN 备用地址：
+
+```text
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/index.json
+```
+
+两种地址的文件目录结构完全一致。客户端建议先请求 GitHub Raw，超时或失败后再切换到 jsDelivr。当前测试环境中 Raw 地址可能超时，而 jsDelivr 返回正常。
 
 仓库地址：
 
@@ -195,9 +203,44 @@ ROM 和海报均可公开下载，不需要 `Authorization`。
 
 如果服务端条目的 `sha256` 或 `revision` 变化，客户端应提示游戏包已更新。
 
-## 8. 缓存与刷新
+## 8. 主地址与备用地址
 
-`games.json` 和资源文件都通过 GitHub Raw 提供，可能受到网络和缓存影响。
+同一个相对路径可以在两个域名下访问。
+
+GitHub Raw：
+
+```text
+https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/<path>
+```
+
+jsDelivr：
+
+```text
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/<path>
+```
+
+例如：
+
+```text
+Raw:
+https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json
+
+jsDelivr:
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/gba.json
+```
+
+建议客户端：
+
+1. 优先请求 Raw；
+2. 连接超时、DNS 失败或 HTTP 5xx 时切换 jsDelivr；
+3. 下载 ROM 时也按同样策略切换备用域名；
+4. 不依赖 GitHub API 的分页或鉴权接口。
+
+注意：jsDelivr 的 `@main` 分支地址有 CDN 缓存，新上传游戏可能有延迟；GitHub Raw 更适合立即读取最新数据。
+
+## 9. 缓存与刷新
+
+公开文件可能受到网络和缓存影响。
 
 建议：
 
@@ -207,18 +250,18 @@ ROM 和海报均可公开下载，不需要 `Authorization`。
 - 海报加载失败时显示本地默认封面；
 - 不依赖 GitHub API 的分页或鉴权接口。
 
-## 9. 错误与空数据
+## 10. 错误与空数据
 
 - 文件不存在时，GitHub Raw 通常返回 `404`。
 - JSON 不存在或格式错误时，客户端应保留本地缓存并在下次刷新重试。
 - `games` 为空数组表示该类型暂无游戏，不是接口失败。
 - 当前接口没有服务端搜索、分页或排序参数。
 
-## 10. 排序约定
+## 11. 排序约定
 
 新上传的游戏会插入到对应 `games` 数组的开头，因此客户端直接按数组顺序展示即可得到“最新上传在前”的效果。
 
-## 11. 最小 Kotlin 数据模型参考
+## 12. 最小 Kotlin 数据模型参考
 
 ```kotlin
 data class GameIndex(
@@ -246,7 +289,7 @@ data class GameItem(
 )
 ```
 
-## 12. 重要约束
+## 13. 重要约束
 
 - 公开文件全部可直接访问，没有鉴权。
 - ROM 最大 10MB。

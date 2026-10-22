@@ -10,6 +10,7 @@
     "githubUrl": "https://github.com/nannandedongdong/game_list"
   },
   "publicBaseUrl": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+  "fallbackPublicBaseUrl": "https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public",
   "limits": {
     "romBytes": 10485760,
     "coverBytes": 2097152

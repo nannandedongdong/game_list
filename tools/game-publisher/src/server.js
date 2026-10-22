@@ -31,6 +31,7 @@ function createApp(config, store, publisher) {
         contentRoot: config.contentRoot,
       },
       publicBaseUrl: config.publicBaseUrl,
+      fallbackPublicBaseUrl: config.fallbackPublicBaseUrl,
       limits: {
         rom_bytes: config.romBytes,
         cover_bytes: config.coverBytes,

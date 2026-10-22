@@ -17,6 +17,12 @@
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
 
+备用 CDN：
+
+```text
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/index.json
+```
+
 ## 本地发布后台
 
 ```bash
