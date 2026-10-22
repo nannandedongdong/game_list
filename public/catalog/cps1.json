@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-22T08:29:51.067Z",
+  "updated_at": "2026-10-22T08:44:51.751Z",
   "games": [
+    {
+      "id": "cps1-20261022-6ff0bc9b",
+      "name": "街头霸王2 世界勇士（盗版 带规则画面） [sf2rules]",
+      "cover_path": null,
+      "rom_path": "../roms/cps1/cps1-20261022-6ff0bc9b/game.zip",
+      "file_name": "街头霸王2 世界勇士（盗版 带规则画面） [sf2rules].zip",
+      "file_size": 3748981,
+      "sha256": "650d213368061d97e627505715798caf482e28cf0c405f0e788fc4f4ecc87169",
+      "revision": 1,
+      "updated_at": "2026-10-22T08:44:51.751Z"
+    },
     {
       "id": "cps1-20261022-7f6a9e88",
       "name": "圆桌骑士-世界版",
