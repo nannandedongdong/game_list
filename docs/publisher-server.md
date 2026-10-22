@@ -43,7 +43,8 @@ git ls-remote --heads origin
 ## 3. 安装与启动
 
 ```bash
-cd /Users/wudz/game_list/tools/game-publisher
+git clone git@github.com:nannandedongdong/game_list.git
+cd game_list/tools/game-publisher
 npm install
 npm start
 ```
@@ -76,7 +77,7 @@ publisher.config.json
 | `repository.githubUrl` | 页面显示的 GitHub 地址 |
 | `publicBaseUrl` | 手机端优先访问的公开根地址 |
 | `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 jsDelivr 备用根地址 |
-| `limits.romBytes` | 单 ROM 上限，默认 10MB |
+| `limits.romBytes` | 单个游戏包上限，默认 10MB；ZIP 按 ZIP 文件大小计算 |
 | `limits.coverBytes` | 单海报上限，默认 2MB |
 | `limits.zipMaxEntries` | ZIP 内文件数量上限，默认 2048 |
 | `limits.zipMaxUncompressedBytes` | ZIP 解压后总大小上限，默认 128MB |
@@ -114,7 +115,11 @@ public/catalog/<类型>.json
 
 浏览器不允许把旧文件自动填回文件选择框，因此更新时 ROM 输入变为可选。没有选择新文件就保持原 ROM 不变。
 
-替换 ROM 时不保留旧版本，直接覆盖固定路径，`revision` 自动加 1。
+替换 ROM 时不保留旧版本，直接覆盖固定路径。
+
+任意成功更新都会让 `revision` 自动加 1，包括只修改名称或海报；客户端判断游戏包是否变化应比较 `sha256`。
+
+只修改名称或海报、不上传新 ROM 时，本次 commit 只包含类型 JSON；如果还替换了海报，则同时包含海报文件。
 
 ### 删除游戏
 
@@ -193,6 +198,47 @@ git push origin HEAD:main
 | `cover` | 否 | JPG / PNG / WebP |
 | `id` | 更新时必填 | 已有游戏 ID |
 
+上传 ZIP 时的成功响应会额外包含：
+
+```json
+{
+  "package": {
+    "format": "zip",
+    "detected_type": "GBA",
+    "detection": "file-header",
+    "entry_count": 1,
+    "uncompressed_size": 33554432
+  }
+}
+```
+
+更新但未重新选择 ROM 时：
+
+```json
+{
+  "package": {
+    "format": "zip",
+    "preserved": true
+  }
+}
+```
+
+主要错误码：
+
+| 错误码 | 说明 |
+|---|---|
+| `INVALID_ZIP` | ZIP 无法读取或格式错误 |
+| `GAME_TYPE_MISMATCH` | ZIP 内容类型和页面选择不一致 |
+| `MIXED_GAME_TYPES` | 同一个 ZIP 内混装多个游戏类型 |
+| `UNRECOGNIZED_GAME_TYPE` | 未找到可识别的游戏文件 |
+| `NESTED_ZIP` | ZIP 内嵌套了 ZIP |
+| `ENCRYPTED_ZIP` | ZIP 加密 |
+| `UNSAFE_ZIP_ENTRY` | ZIP 中包含异常路径 |
+| `ZIP_TOO_MANY_ENTRIES` | ZIP 内文件数量超限 |
+| `ZIP_UNCOMPRESSED_TOO_LARGE` | ZIP 解压后体积超限 |
+| `DUPLICATE_ROM` | 相同 SHA-256 的游戏包已存在 |
+| `PUSH_FAILED` | 本地 commit 成功，但 push 失败 |
+
 ## 9. 测试
 
 ```bash
@@ -203,7 +249,10 @@ npm test
 测试覆盖：
 
 - 类型规范化；
-- ROM 大小和扩展名校验；
+- 游戏包大小和扩展名校验；
+- GBA / MD / FC 的 ZIP 文件头识别；
+- CPS1 多文件街机包；
+- 类型不匹配、混装类型和无效 ZIP；
 - 海报文件头识别；
 - ID 与 SHA-256；
 - 类型 JSON 与索引生成；
@@ -247,4 +296,15 @@ git pull --rebase --autostash origin main
 
 ### 手机端还看到旧数据
 
-GitHub Raw 可能有缓存。等待片刻，或在请求上级加 `?v=<updated_at>`。
+GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<updated_at>`。
+
+如果主地址网络不可用，可切换到配置中的 jsDelivr 备用地址。注意 jsDelivr 的 `@main` 有 CDN 缓存，最新数据仍优先使用 GitHub Raw。
+
+## 11. 变更记录
+
+### 2026-10-22
+
+- 支持 GBA / MD / FC / CPS1 上传 ZIP 游戏包。
+- 增加 ZIP 内部类型识别和 ZIP 安全限制。
+- 更新已有游戏时展示当前 ROM，并允许不重新选择 ROM。
+- 单次新增、更新、删除仍只创建一个 Git commit。

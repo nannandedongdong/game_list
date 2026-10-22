@@ -1,5 +1,11 @@
 # Game List 公开接口文档
 
+> 文档版本：`2026-10-22`
+>
+> 数据协议：`schema_version = 1`
+>
+> 适用客户端：Android / iOS
+
 本文档面向 Android/iOS 客户端。客户端只读取 GitHub 上的公开 JSON 和静态文件，不需要访问本地发布后台，也不需要登录。
 
 ## 1. 基本地址
@@ -112,10 +118,10 @@ public/catalog/fc.json
     {
       "id": "gba-20261022-9fdb7626",
       "name": "热血硬派国夫君SP 汉化版V1.0",
-      "cover_path": "../covers/gba/gba-20261022-9fdb7626/cover.png",
-      "rom_path": "../roms/gba/gba-20261022-9fdb7626/game.gba",
-      "file_name": "热血硬派国夫君SP 汉化版V1.0.gba",
-      "file_size": 12058624,
+      "cover_path": "../covers/gba/gba-20261022-9fdb7626/cover.webp",
+      "rom_path": "../roms/gba/gba-20261022-9fdb7626/game.zip",
+      "file_name": "热血硬派国夫君SP 汉化版V1.0.zip",
+      "file_size": 9437184,
       "sha256": "9f8a...完整64位十六进制...",
       "revision": 1,
       "updated_at": "2026-10-22T10:30:02.824Z"
@@ -140,11 +146,11 @@ public/catalog/fc.json
 | `id` | string | 否 | 稳定唯一 ID，不会因改名变化 |
 | `name` | string | 否 | 游戏显示名称，允许重复 |
 | `cover_path` | string/null | 是 | 海报相对路径；没有上传海报时为 `null` |
-| `rom_path` | string | 否 | ROM 相对路径 |
-| `file_name` | string | 否 | 下载后建议保留的原始文件名 |
-| `file_size` | number | 否 | ROM 字节数 |
-| `sha256` | string | 否 | ROM 的 SHA-256，小写十六进制 |
-| `revision` | number | 否 | 从 `1` 开始；替换 ROM/海报时递增 |
+| `rom_path` | string | 否 | 游戏包相对路径，文件可能是原始 ROM 或 `.zip` |
+| `file_name` | string | 否 | 上传时的原始文件名，可能以 `.zip` 结尾 |
+| `file_size` | number | 否 | 发布的游戏包字节数；ZIP 包按 ZIP 文件本身计算 |
+| `sha256` | string | 否 | 发布的游戏包 SHA-256；ZIP 包按 ZIP 文件本身计算，不是解压后文件 |
+| `revision` | number | 否 | 记录修订号，从 `1` 开始；每次成功更新都会递增 |
 | `updated_at` | string | 否 | 该游戏最后更新时间，ISO 8601 |
 
 游戏条目本身不重复返回 `game_type`，客户端应使用所属列表的顶层 `game_type`。
@@ -160,13 +166,13 @@ public/catalog/fc.json
 https://.../public/catalog/gba.json
 
 rom_path:
-../roms/gba/gba-20261022-9fdb7626/game.gba
+../roms/gba/gba-20261022-9fdb7626/game.zip
 
 最终地址:
-https://.../public/roms/gba/gba-20261022-9fdb7626/game.gba
+https://.../public/roms/gba/gba-20261022-9fdb7626/game.zip
 ```
 
-客户端应使用标准 URL 相对路径解析，不要手工删除或拼接 `../`。
+客户端应使用标准 URL 相对路径解析，不要手工删除或拼接 `../`。Android 可使用 `java.net.URI.resolve()` 解析相对地址。
 
 ## 6. 下载与校验
 
@@ -187,7 +193,9 @@ ROM 和海报均可公开下载，不需要 `Authorization`。
 | CPS1 | `.zip` |
 | FC | `.nes`, `.fds`, `.unf`, `.zip` |
 
-所有类型的游戏包都可以使用 `.zip`。上传时服务端会检查 ZIP 内的文件头和文件结构，确认内容与选择的游戏类型一致；内容不一致或包含多种类型时会被拒绝。服务端不会解压或修改最终发布的 ZIP，客户端应直接下载 `rom_path` 指向的文件，并以列表顶层的 `game_type` 判断游戏类型，不能根据 `.zip` 后缀推断类型。
+所有类型的游戏包都可以使用 `.zip`。上传时服务端会检查 ZIP 内的文件头和文件结构，确认内容与选择的游戏类型一致；内容不一致或包含多种类型时会被拒绝。
+
+服务端不会解压或修改最终发布的 ZIP。客户端应直接下载 `rom_path` 指向的文件，并以列表顶层的 `game_type` 判断游戏类型，不能根据 `.zip` 后缀推断类型。若业务层要求未压缩 ROM，可在客户端下载并校验 ZIP 后自行解压。
 
 校验失败时应删除临时文件，不要把它标记为已下载。
 
@@ -203,7 +211,12 @@ ROM 和海报均可公开下载，不需要 `Authorization`。
 - `revision`
 - 下载完成时间
 
-如果服务端条目的 `sha256` 或 `revision` 变化，客户端应提示游戏包已更新。
+判断游戏包是否变化时，以 `sha256` 为准；`sha256` 变化表示 ROM/ZIP 内容确实变化。
+
+`revision` 每次成功更新都会递增，也可能只是名称或海报变化。因此：
+
+- `sha256` 变化：提示游戏包已更新；
+- 仅 `revision` 或 `updated_at` 变化：刷新名称、海报等元数据即可，不必重新下载游戏包。
 
 ## 8. 主地址与备用地址
 
@@ -236,9 +249,31 @@ https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/gba.j
 1. 优先请求 Raw；
 2. 连接超时、DNS 失败或 HTTP 5xx 时切换 jsDelivr；
 3. 下载 ROM 时也按同样策略切换备用域名；
-4. 不依赖 GitHub API 的分页或鉴权接口。
+4. 主流程不依赖 GitHub API；仅在 Raw 和普通 jsDelivr 都不可用时，用 GitHub API 获取最新 commit。
 
-注意：jsDelivr 的 `@main` 分支地址有 CDN 缓存，新上传游戏可能有延迟；GitHub Raw 更适合立即读取最新数据。
+注意：jsDelivr 的 `@main` 分支地址有 CDN 缓存，新上传游戏可能有延迟，甚至可能短时间返回旧列表；GitHub Raw 更适合立即读取最新数据。
+
+### 8.1 jsDelivr 缓存旧数据时的处理
+
+如果 GitHub Raw 请求失败，而 `@main` 的 jsDelivr 地址返回旧数据，可以先查询仓库最新 commit：
+
+```text
+GET https://api.github.com/repos/nannandedongdong/game_list/commits/main
+```
+
+从响应中读取 `sha`，再使用固定 commit 的 jsDelivr 地址：
+
+```text
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@<commit-sha>/public/catalog/index.json
+```
+
+格式示例（SHA 仅用于演示，客户端应使用 API 返回的最新 SHA）：
+
+```text
+https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@<commit-sha>/public/catalog/index.json
+```
+
+这种方式能避开 `@main` 的缓存问题。注意 GitHub API 有未登录请求频率限制，建议只在 Raw 与普通 jsDelivr 都失败时使用，并缓存本次拿到的 commit SHA。
 
 ## 9. 缓存与刷新
 
@@ -298,3 +333,16 @@ data class GameItem(
 - 海报为可选文件，支持 JPG、PNG、WebP。
 - 当前数据格式版本为 `1`。
 - 新增字段时应保证旧客户端可以忽略未知字段。
+- 下载完成后必须按整个已发布文件校验 `file_size` 和 `sha256`。
+
+## 14. 变更记录
+
+### 2026-10-22
+
+- 所有游戏类型支持 `.zip` 游戏包。
+- 上传 ZIP 时会检查内部文件类型，防止类型选择错误。
+- 客户端接口字段保持不变，`schema_version` 仍为 `1`。
+- 明确 `sha256` 和 `file_size` 针对已发布的 ZIP 文件本身。
+- 明确 `revision` 在每次更新时递增，ROM 是否变化应以 `sha256` 判断。
+- 增加 GitHub Raw 与 jsDelivr 双地址策略。
+- 增加 jsDelivr `@main` 缓存旧数据时，通过 GitHub API 获取 commit SHA 再访问固定版本的方法。
