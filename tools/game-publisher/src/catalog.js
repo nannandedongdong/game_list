@@ -160,6 +160,14 @@ class CatalogStore {
     return `${this.config.publicBaseUrl}/catalog/${this.config.gameTypes[type].catalog}`;
   }
 
+  localAssetUrl(relativePath) {
+    if (!relativePath) return null;
+    const normalized = path.posix
+      .normalize(`/${relativePath}`)
+      .replace(/^\/+/, '');
+    return `/media/${normalized}`;
+  }
+
   publicAssetUrl(relativePath) {
     if (!relativePath) return null;
     const normalized = path.posix

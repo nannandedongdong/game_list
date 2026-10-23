@@ -168,13 +168,19 @@ function createGameRow(game) {
   const row = document.createElement('article');
   row.className = 'game-row';
 
-  if (game.public.cover) {
+  if (game.local.cover || game.public.cover) {
     const image = document.createElement('img');
     image.className = 'game-cover';
-    image.src = game.public.cover;
+    image.src = game.local.cover || game.public.cover;
     image.alt = `${game.name} 海报`;
     image.loading = 'lazy';
-    image.addEventListener('error', () => image.replaceWith(coverPlaceholder(game)));
+    image.addEventListener('error', () => {
+      if (game.public.cover && image.src !== game.public.cover) {
+        image.src = game.public.cover;
+      } else {
+        image.replaceWith(coverPlaceholder(game));
+      }
+    });
     row.append(image);
   } else {
     row.append(coverPlaceholder(game));

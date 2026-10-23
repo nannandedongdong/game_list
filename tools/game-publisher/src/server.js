@@ -53,6 +53,10 @@ function createApp(config, store, publisher) {
   app.get('/api/games', (req, res) => {
     const games = store.allGames().map((game) => ({
       ...game,
+      local: {
+        cover: store.localAssetUrl(game.cover_path),
+        rom: store.localAssetUrl(game.rom_path),
+      },
       public: store.publicGameUrls(game.game_type, game),
     }));
     res.json({ ok: true, games });
@@ -86,6 +90,7 @@ function createApp(config, store, publisher) {
     }
   });
 
+  app.use('/media', express.static(store.contentRoot));
   app.use(express.static(path.join(__dirname, '..', 'web')));
 
   app.use((error, req, res, next) => {
