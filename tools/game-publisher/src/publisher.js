@@ -81,11 +81,24 @@ class GamePublisher {
     }
 
     const name = cleanDisplayName(fields.name);
-    if (lockedOriginalName !== null && name !== lockedOriginalName) {
+    const requestedNameEn = String(fields.name_en || '').trim();
+    const nameEn = requestedNameEn
+      ? cleanDisplayName(requestedNameEn)
+      : isUpdate
+        ? String(existing.game.name_en || '').trim()
+        : '';
+    if (!nameEn) {
+      throw httpError(400, 'MISSING_ENGLISH_NAME', '英文名称不能为空');
+    }
+    if (
+      lockedOriginalName !== null &&
+      (name !== lockedOriginalName ||
+        nameEn !== String(existing.game.name_en || '').trim())
+    ) {
       throw httpError(
         403,
         'CPS1_NAME_LOCKED',
-        `${type} 游戏名称和 ROM 已锁定，只能更新封面`,
+        `${type} 游戏名称、英文名称和 ROM 已锁定，只能更新封面`,
       );
     }
     if (!isUpdate && !hasNewRom) {
@@ -180,6 +193,7 @@ class GamePublisher {
       game = {
         id,
         name,
+        name_en: nameEn,
         cover_path: coverExtension
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : previous.cover_path || null,
@@ -201,6 +215,7 @@ class GamePublisher {
       game = {
         id,
         name,
+        name_en: nameEn,
         cover_path: coverExtension
           ? this.store.catalogRelativeCoverPath(type, id, coverExtension)
           : null,

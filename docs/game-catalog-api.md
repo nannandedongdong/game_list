@@ -116,15 +116,16 @@ public/catalog/fc.json
   "updated_at": "2026-10-22T10:30:02.824Z",
   "games": [
     {
-      "id": "gba-20261022-9fdb7626",
-      "name": "热血硬派国夫君SP 汉化版V1.0",
-      "cover_path": "../covers/gba/gba-20261022-9fdb7626/cover.webp",
-      "rom_path": "../roms/gba/gba-20261022-9fdb7626/game.zip",
-      "file_name": "gba202610229fdb7626.zip",
-      "file_size": 9437184,
-      "sha256": "9f8a...完整64位十六进制...",
-      "revision": 1,
-      "updated_at": "2026-10-22T10:30:02.824Z"
+      "id": "cps1-20261022-8aecf504",
+      "name": "快打旋风",
+      "name_en": "Final Fight",
+      "cover_path": "../covers/cps1/cps1-20261022-8aecf504/cover.webp",
+      "rom_path": "../roms/cps1/cps1-20261022-8aecf504/ffight.zip",
+      "file_name": "ffight.zip",
+      "file_size": 1407144,
+      "sha256": "b37e25de503c39efddbb8eb2b9f7220f508c09a79c925bd8d428e03bffac6dbf",
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z"
     }
   ]
 }
@@ -144,7 +145,8 @@ public/catalog/fc.json
 | 字段 | 类型 | 可空 | 说明 |
 |---|---|---|---|
 | `id` | string | 否 | 稳定唯一 ID，不会因改名变化 |
-| `name` | string | 否 | 游戏显示名称，允许重复 |
+| `name` | string | 否 | 中文显示名称，允许重复 |
+| `name_en` | string | 否 | 英文显示名称，欧美语言环境应优先使用 |
 | `cover_path` | string/null | 是 | 海报相对路径；没有上传海报时为 `null` |
 | `rom_path` | string | 否 | 游戏包相对路径，文件可能是原始 ROM 或 `.zip` |
 | `file_name` | string | 否 | 下载时使用的安全文件名。CPS1 必须使用 MAME 集合短名，例如 `punisher.zip`；其他类型使用稳定 ASCII 名称 |
@@ -154,6 +156,11 @@ public/catalog/fc.json
 | `updated_at` | string | 否 | 该游戏最后更新时间，ISO 8601 |
 
 游戏条目本身不重复返回 `game_type`，客户端应使用所属列表的顶层 `game_type`。
+
+客户端应根据系统语言选择显示名称：
+
+- 英文或默认语言：优先使用 `name_en`
+- 中文语言：使用 `name`
 
 ## 5. 相对路径解析规则
 
@@ -328,6 +335,7 @@ data class GameCatalog(
 data class GameItem(
     val id: String,
     val name: String,
+    @SerializedName("name_en") val nameEn: String,
     @SerializedName("cover_path") val coverPath: String?,
     @SerializedName("rom_path") val romPath: String,
     @SerializedName("file_name") val fileName: String,
@@ -344,6 +352,7 @@ data class GameItem(
 - 游戏包最大 10MB（可直接上传 ZIP）。
 - 海报为可选文件，支持 JPG、PNG、WebP。
 - 当前数据格式版本为 `1`。
+- 新客户端应优先使用 `name_en`，旧客户端忽略该字段仍可使用 `name`。
 - 新增字段时应保证旧客户端可以忽略未知字段。
 - 下载完成后必须按整个已发布文件校验 `file_size` 和 `sha256`。
 
@@ -359,4 +368,6 @@ data class GameItem(
 - CPS1 的 `file_name` 固定使用 MAME 集合短名。
 - 明确 `revision` 在每次更新时递增，ROM 是否变化应以 `sha256` 判断。
 - 增加 GitHub Raw 与 jsDelivr 双地址策略。
+- 游戏条目增加 `name_en` 英文字段。
+- 中文和英文游戏名均移除末尾括号中的版本、日期和地区信息。
 - 增加 jsDelivr `@main` 缓存旧数据时，通过 GitHub API 获取 commit SHA 再访问固定版本的方法。

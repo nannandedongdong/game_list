@@ -1,381 +1,415 @@
 {
   "schema_version": 1,
   "game_type": "CPS1",
-  "updated_at": "2026-10-23T07:00:37.957Z",
+  "updated_at": "2026-10-23T07:06:28.491Z",
   "games": [
     {
       "id": "cps1-20261022-5933b0b3",
-      "name": "1941 反击战（世界版 900227）",
+      "name": "1941 反击战",
       "cover_path": "../covers/cps1/cps1-20261022-5933b0b3/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-5933b0b3/1941.zip",
       "file_name": "1941.zip",
       "file_size": 1420289,
       "sha256": "c85e96362722c3a5f449ebfcf13a6734fa265a1c480057bbd050bc457414e262",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "1941: Counter Attack"
     },
     {
       "id": "cps1-20261022-c2880e94",
-      "name": "三个奇迹（世界版 910520）",
+      "name": "三个奇迹",
       "cover_path": "../covers/cps1/cps1-20261022-c2880e94/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-c2880e94/3wonders.zip",
       "file_name": "3wonders.zip",
       "file_size": 2479888,
       "sha256": "3d2d8f0eac16cffadc7499c67aebd182b006f7f8997902e7b14dbfc73eecb39c",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Three Wonders"
     },
     {
       "id": "cps1-20261022-4e168eba",
-      "name": "名将（世界版 911202）",
+      "name": "名将",
       "cover_path": "../covers/cps1/cps1-20261022-4e168eba/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-4e168eba/captcomm.zip",
       "file_name": "captcomm.zip",
       "file_size": 2542114,
       "sha256": "268f0a624eb5277bb640af16038d8a774a17d3a9760396b059ee383fabf23ff1",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Captain Commando"
     },
     {
       "id": "cps1-20261022-5835c914",
-      "name": "雌虎战机（世界版 901012）",
+      "name": "雌虎战机",
       "cover_path": "../covers/cps1/cps1-20261022-5835c914/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-5835c914/cawing.zip",
       "file_name": "cawing.zip",
       "file_size": 1440062,
       "sha256": "16604163bdf26e82b6495c7e4e0d0e1c3cf6a644a9e263b84a6c8b7519929755",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Carrier Air Wing"
     },
     {
       "id": "cps1-20261022-fd28d805",
-      "name": "卡普空世界2 冒险问答（日版 920611）",
+      "name": "卡普空世界2 冒险问答",
       "cover_path": "../covers/cps1/cps1-20261022-fd28d805/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-fd28d805/cworld2j.zip",
       "file_name": "cworld2j.zip",
       "file_size": 1753871,
       "sha256": "2eece4599cde4b0c4cb61623dcc869e4ebb3ea745365a8bb3c2c1fa9bfc26f62",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Adventure Quiz Capcom World 2"
     },
     {
       "id": "cps1-20261022-8fbefc95",
-      "name": "恐龙快打（世界版 930201）",
+      "name": "恐龙快打",
       "cover_path": "../covers/cps1/cps1-20261022-8fbefc95/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-8fbefc95/dino.zip",
       "file_name": "dino.zip",
       "file_size": 4118728,
       "sha256": "51d2e39742cbecf02e84df9dcb65216cdd31b07bafddfcae5d1614d39e0d2d9f",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Cadillacs and Dinosaurs"
     },
     {
       "id": "cps1-20261022-01d5230e",
-      "name": "吞食天地（美版，B板 89624B-?）",
+      "name": "吞食天地",
       "cover_path": "../covers/cps1/cps1-20261022-01d5230e/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-01d5230e/dynwar.zip",
       "file_name": "dynwar.zip",
       "file_size": 2193606,
       "sha256": "fda2bc0545ff51fb6bb5b7ebb2369b64d85b621b7460154e7b43148227cda288",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Dynasty Wars"
     },
     {
       "id": "cps1-20261022-8aecf504",
-      "name": "快打旋风（世界版，第1套）",
+      "name": "快打旋风",
       "cover_path": "../covers/cps1/cps1-20261022-8aecf504/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-8aecf504/ffight.zip",
       "file_name": "ffight.zip",
       "file_size": 1407144,
       "sha256": "b37e25de503c39efddbb8eb2b9f7220f508c09a79c925bd8d428e03bffac6dbf",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Final Fight"
     },
     {
       "id": "cps1-20261022-d0b67115",
-      "name": "失落的世界（世界版，新版）",
+      "name": "失落的世界",
       "cover_path": "../covers/cps1/cps1-20261022-d0b67115/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-d0b67115/forgottn.zip",
       "file_name": "forgottn.zip",
       "file_size": 1952681,
       "sha256": "0b7792a1ddc9365dd5b1796937657f854626964605e8a92ccfa1e160fd885fc0",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Forgotten Worlds"
     },
     {
       "id": "cps1-20261022-09d1ffe8",
-      "name": "大魔界村（世界版）",
+      "name": "大魔界村",
       "cover_path": "../covers/cps1/cps1-20261022-09d1ffe8/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-09d1ffe8/ghouls.zip",
       "file_name": "ghouls.zip",
       "file_size": 1608233,
       "sha256": "ac0da36b367ee0ab62c485c6a60eeef0bf743baa753973b1d4cd205091465748",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Ghouls'n Ghosts"
     },
     {
       "id": "cps1-20261022-186e9a49",
-      "name": "圆桌骑士（世界版 911127）",
+      "name": "圆桌骑士",
       "cover_path": "../covers/cps1/cps1-20261022-186e9a49/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-186e9a49/knights.zip",
       "file_name": "knights.zip",
       "file_size": 2355202,
       "sha256": "41e54d65889d9bdf0181b10c73582ba2ca97cf502d5ddb32688f3b39bf0baa13",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Knights of the Round"
     },
     {
       "id": "cps1-20261022-3e09cbb4",
-      "name": "龙王（世界版 910805）",
+      "name": "龙王",
       "cover_path": "../covers/cps1/cps1-20261022-3e09cbb4/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-3e09cbb4/kod.zip",
       "file_name": "kod.zip",
       "file_size": 2361501,
       "sha256": "2dfc59da0a8c6a63d2b57e812fa4db862bc85811a5779c9ed1c6a31466f1f9e2",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "The King of Dragons"
     },
     {
       "id": "cps1-20261022-fb4a0bdc",
-      "name": "肌肉炸弹人 双人版（世界版 931206）",
+      "name": "肌肉炸弹人 双人版",
       "cover_path": "../covers/cps1/cps1-20261022-fb4a0bdc/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-fb4a0bdc/mbombrd.zip",
       "file_name": "mbombrd.zip",
       "file_size": 6510038,
       "sha256": "881e7e724fc055c0d8914641d4da73ded33788d8bf6692105f5544a222266fc7",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Muscle Bomber Duo: Ultimate Team Battle"
     },
     {
       "id": "cps1-20261022-c013d16a",
-      "name": "洛克人 力量对决（CPS1，美版 951006）",
+      "name": "洛克人 力量对决",
       "cover_path": "../covers/cps1/cps1-20261022-c013d16a/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-c013d16a/megaman.zip",
       "file_name": "megaman.zip",
       "file_size": 3301557,
       "sha256": "21d11f9c55c706cd05a379840904249e16ff045ed966cece96ded37bdd26c8b5",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Mega Man: The Power Battle"
     },
     {
       "id": "cps1-20261022-f27f5a65",
-      "name": "战场之狼2（世界版 900302）",
+      "name": "战场之狼2",
       "cover_path": "../covers/cps1/cps1-20261022-f27f5a65/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-f27f5a65/mercs.zip",
       "file_name": "mercs.zip",
       "file_size": 1754056,
       "sha256": "e6ad897e4dbb8a5fa3b7c4e5445e818fac2961569a6a6c0cac49d68ac91e9986",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Mercs"
     },
     {
       "id": "cps1-20261022-f28d60e1",
-      "name": "魔剑（世界版 900725）",
+      "name": "魔剑",
       "cover_path": "../covers/cps1/cps1-20261022-f28d60e1/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-f28d60e1/msword.zip",
       "file_name": "msword.zip",
       "file_size": 1440358,
       "sha256": "214301abd2f8f61e184b96f479bdc5c30acc5fb6c767232bde270886cbc329b5",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Magic Sword: Heroic Fantasy"
     },
     {
       "id": "cps1-20261022-6b3cdf1e",
-      "name": "小和尚（世界版 900619）",
+      "name": "小和尚",
       "cover_path": "../covers/cps1/cps1-20261022-6b3cdf1e/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-6b3cdf1e/mtwins.zip",
       "file_name": "mtwins.zip",
       "file_size": 1435432,
       "sha256": "a4b7186e3d74692fedc34b64d8db691adc9665c9f586db438ba0437132fe3ba3",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Mega Twins"
     },
     {
       "id": "cps1-20261022-0075870f",
-      "name": "小尼莫（世界版 901130）",
+      "name": "小尼莫",
       "cover_path": "../covers/cps1/cps1-20261022-0075870f/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-0075870f/nemo.zip",
       "file_name": "nemo.zip",
       "file_size": 1340367,
       "sha256": "c59ad2e4b620b21815ad09c760a0f8b81500088e73859ee77c55f742e2b3493a",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Nemo"
     },
     {
       "id": "cps1-20261022-c215c123",
-      "name": "泡泡龙3（日版 950511）",
+      "name": "泡泡龙3",
       "cover_path": "../covers/cps1/cps1-20261022-c215c123/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-c215c123/pang3j.zip",
       "file_name": "pang3j.zip",
       "file_size": 1512959,
       "sha256": "0904293b490d96099045f87c3c41cbd2efeaa9a2c90569ac1adbc47b72c6e4d3",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Pang! 3: Kaitou Tachi no Karei na Gogo"
     },
     {
       "id": "cps1-20261022-09a4c7f9",
-      "name": "普尼基（日版 940608）",
+      "name": "普尼基",
       "cover_path": "../covers/cps1/cps1-20261022-09a4c7f9/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-09a4c7f9/pnickj.zip",
       "file_name": "pnickj.zip",
       "file_size": 768480,
       "sha256": "6065aaed188ec732fe2f0cb207e34bb2089896328fc03c524db59dc4f2359c1a",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Pnickies"
     },
     {
       "id": "cps1-20261022-8dd59e41",
-      "name": "惩罚者（世界版 930422）",
+      "name": "惩罚者",
       "cover_path": "../covers/cps1/cps1-20261022-8dd59e41/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-8dd59e41/punisher.zip",
       "file_name": "punisher.zip",
       "file_size": 4042628,
       "sha256": "d959b9e3b1dced95f5ef55f01189e6da0c9006d02ceb4d564df85aa5f35e440d",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "The Punisher"
     },
     {
       "id": "cps1-20261022-03fa2bb8",
-      "name": "问答与龙 卡普空问答游戏（美版 920701）",
+      "name": "问答与龙 卡普空问答游戏",
       "cover_path": "../covers/cps1/cps1-20261022-03fa2bb8/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-03fa2bb8/qad.zip",
       "file_name": "qad.zip",
       "file_size": 1095855,
       "sha256": "72a65fd7ecf3af399dca1d887f7b7a8e8af7a39258bd4c2b3183f6387ce924be",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Quiz & Dragons: Capcom Quiz Game"
     },
     {
       "id": "cps1-20261022-2d76c213",
-      "name": "问答 殿样之野望2 全国版（日版 950123）",
+      "name": "问答 殿样之野望2 全国版",
       "cover_path": "../covers/cps1/cps1-20261022-2d76c213/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-2d76c213/qtono2j.zip",
       "file_name": "qtono2j.zip",
       "file_size": 1945248,
       "sha256": "f9d80386146c94c522f28a476bfeb60fa37b9ccb6e323a7a6a211c04657d6d69",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Quiz Tonosama no Yabou 2: Zenkoku-ban"
     },
     {
       "id": "cps1-20261022-7aba4d86",
-      "name": "街头霸王2 世界勇士（世界版 910522）",
+      "name": "街头霸王2 世界勇士",
       "cover_path": "../covers/cps1/cps1-20261022-7aba4d86/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-7aba4d86/sf2.zip",
       "file_name": "sf2.zip",
       "file_size": 3551819,
       "sha256": "4abbfccd30caf163f18064bf8c27b2780f370d67d34ee802999dcbb7e6436a30",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Street Fighter II: The World Warrior"
     },
     {
       "id": "cps1-20261022-ff754841",
-      "name": "街头霸王2 冠军版（世界版 920513）",
+      "name": "街头霸王2 冠军版",
       "cover_path": "../covers/cps1/cps1-20261022-ff754841/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-ff754841/sf2ce.zip",
       "file_name": "sf2ce.zip",
       "file_size": 3584791,
       "sha256": "934a64cb81871d271a369dc4e1edf535ab0a3af7c60c59be2a366fd1eacbef7c",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Street Fighter II': Champion Edition"
     },
     {
       "id": "cps1-20261022-76a7086f",
-      "name": "街头霸王2 极速版（世界版 921209）",
+      "name": "街头霸王2 极速版",
       "cover_path": "../covers/cps1/cps1-20261022-76a7086f/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-76a7086f/sf2hf.zip",
       "file_name": "sf2hf.zip",
       "file_size": 3640355,
       "sha256": "1d6e25e4e36e3b8c904228473cd700ecf30cf570c0263e3f7fba66c772f45043",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Street Fighter II': Hyper Fighting"
     },
     {
       "id": "cps1-20261022-27eb3eb1",
-      "name": "街头霸王Zero（CPS Changer版 日版 951020）",
+      "name": "街头霸王Zero",
       "cover_path": "../covers/cps1/cps1-20261022-27eb3eb1/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-27eb3eb1/sfzch.zip",
       "file_name": "sfzch.zip",
       "file_size": 3817613,
       "sha256": "61db4004755c54ba9125967b12cfbe9e50ceb20132a65a4142d999eff7bb6643",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Street Fighter Zero"
     },
     {
       "id": "cps1-20261022-8c1ff6a2",
-      "name": "周末夜摔跤霸王（世界版 930713）",
+      "name": "周末夜摔跤霸王",
       "cover_path": "../covers/cps1/cps1-20261022-8c1ff6a2/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-8c1ff6a2/slammast.zip",
       "file_name": "slammast.zip",
       "file_size": 6589085,
       "sha256": "264947a2830aeb61bc46cb6fd198e6ebc7c88a49b2252433339c383cd2d57e39",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Saturday Night Slam Masters"
     },
     {
       "id": "cps1-20261022-eb10b8b7",
-      "name": "出击飞龙（美版，B板 89624B-2）",
+      "name": "出击飞龙",
       "cover_path": "../covers/cps1/cps1-20261022-eb10b8b7/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-eb10b8b7/strider.zip",
       "file_name": "strider.zip",
       "file_size": 2101117,
       "sha256": "3488754982623789fc649b2d09218e3a72fbd41e83e0901b33eba36fc8e1a351",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Strider"
     },
     {
       "id": "cps1-20261022-a459fc4f",
-      "name": "联合大作战（美版）",
+      "name": "联合大作战",
       "cover_path": "../covers/cps1/cps1-20261022-a459fc4f/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-a459fc4f/unsquad.zip",
       "file_name": "unsquad.zip",
       "file_size": 1274553,
       "sha256": "874d8cd7e367941cd36fa01f5b37f26cf0a3b280a6e78d77c07f4ee0934f52bf",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "U.N. Squadron"
     },
     {
       "id": "cps1-20261022-58e242a1",
-      "name": "威虎战机（世界版 920714）",
+      "name": "威虎战机",
       "cover_path": "../covers/cps1/cps1-20261022-58e242a1/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-58e242a1/varth.zip",
       "file_name": "varth.zip",
       "file_size": 1544886,
       "sha256": "c5c05a7813cd44d2c0167f96b9184b1f0d0c2a2239dd42251e3237f2ccce7208",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Varth: Operation Thunderstorm"
     },
     {
       "id": "cps1-20261022-da454b02",
-      "name": "威洛（世界版）",
+      "name": "威洛",
       "cover_path": "../covers/cps1/cps1-20261022-da454b02/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-da454b02/willow.zip",
       "file_name": "willow.zip",
       "file_size": 1773778,
       "sha256": "a8b22e77185479179f6dfbb89289f3cc1490a603af3099ea0741d0bcf7b5dbb4",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Willow"
     },
     {
       "id": "cps1-20261022-5bf2c7d4",
-      "name": "三国志2 赤壁之战（世界版 921031）",
+      "name": "三国志2 赤壁之战",
       "cover_path": "../covers/cps1/cps1-20261022-5bf2c7d4/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-5bf2c7d4/wof.zip",
       "file_name": "wof.zip",
       "file_size": 3943680,
       "sha256": "ff237ad55c058c53a1ba3b1b296e97887329bcba77269478dbb8061795b2a651",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Warriors of Fate"
     },
     {
       "id": "cps1-20261022-08481af7",
-      "name": "吞食天地2 赤壁之战 CPS Changer（日版 CPS Changer）",
+      "name": "吞食天地2 赤壁之战 CPS Changer",
       "cover_path": "../covers/cps1/cps1-20261022-08481af7/cover.webp",
       "rom_path": "../roms/cps1/cps1-20261022-08481af7/wofch.zip",
       "file_name": "wofch.zip",
       "file_size": 3941704,
       "sha256": "0302a903b5142e6c5fda5769920759adfeb4790b56950a5b3ea22560f66027be",
-      "revision": 2,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 3,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Tenchi wo Kurau II: Sekiheki no Tatakai"
     },
     {
       "id": "cps1-20261023-6b010e4d",
@@ -385,8 +419,9 @@
       "file_name": "pang3.zip",
       "file_size": 1535520,
       "sha256": "73a337cf3accf5b6f63ba9a4c03b8bc4d225346ac72734f4fcc8d806cdfa05ba",
-      "revision": 1,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Pang! 3"
     },
     {
       "id": "cps1-20261023-f0fbea56",
@@ -396,8 +431,9 @@
       "file_name": "wof3js.zip",
       "file_size": 2850622,
       "sha256": "57c946e8d2c56f27b7d0457edf0ddf15a4cdfedb9fafae909264b706b46a6d40",
-      "revision": 1,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Warriors of Fate: Three Sword Saints"
     },
     {
       "id": "cps1-20261023-26bad625",
@@ -407,8 +443,9 @@
       "file_name": "wofhfh.zip",
       "file_size": 2738405,
       "sha256": "885f21fa049b4f1886ac60afb0401540a278056a6ab0bb76887810a37841ed57",
-      "revision": 1,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Huo Feng Huang"
     },
     {
       "id": "cps1-20261023-c4aa3b2c",
@@ -418,8 +455,9 @@
       "file_name": "wofj.zip",
       "file_size": 2543117,
       "sha256": "353c70307b67f4d765910df6314ed8068338032acd0d5814cf31bef37962563d",
-      "revision": 1,
-      "updated_at": "2026-10-23T06:59:50.595Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Tenchi wo Kurau II: Sekiheki no Tatakai"
     }
   ]
 }

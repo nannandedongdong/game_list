@@ -1,40 +1,43 @@
 {
   "schema_version": 1,
   "game_type": "GBA",
-  "updated_at": "2026-10-23T02:15:53.930Z",
+  "updated_at": "2026-10-23T07:06:28.491Z",
   "games": [
     {
       "id": "gba-20261023-80c671ab",
-      "name": "恶魔城 - 晓月圆舞曲[九柳](简)(JP)(64Mb)",
+      "name": "恶魔城 - 晓月圆舞曲[九柳]",
       "cover_path": null,
       "rom_path": "../roms/gba/gba-20261023-80c671ab/game.zip",
       "file_name": "gba2026102380c671ab.zip",
       "file_size": 4269205,
       "sha256": "903c6c82cc3ad8d6c1f8b61823cc1e9bb86971f567bc42dcab0eb8c5120dff6d",
-      "revision": 1,
-      "updated_at": "2026-10-23T02:15:53.930Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Castlevania: Aria of Sorrow"
     },
     {
       "id": "gba-20261022-a43607f1",
-      "name": "超级马里奥A Super Mario Advance(JP)",
+      "name": "超级马里奥A Super Mario Advance",
       "cover_path": null,
       "rom_path": "../roms/gba/gba-20261022-a43607f1/game.zip",
       "file_name": "gba20261022a43607f1.zip",
       "file_size": 2129841,
       "sha256": "4fa35d239a8eddd4a219cdda6b553bda9b3fb34780192d6bec02da70c419e612",
-      "revision": 1,
-      "updated_at": "2026-10-22T02:58:40.909Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Super Mario Advance"
     },
     {
       "id": "gba-20261022-e895f27c",
-      "name": "0001 - 最高时速赛车 F-Zero(JP)",
+      "name": "0001 - 最高时速赛车 F-Zero",
       "cover_path": null,
       "rom_path": "../roms/gba/gba-20261022-e895f27c/game.zip",
       "file_name": "gba20261022e895f27c.zip",
       "file_size": 2108673,
       "sha256": "2fdc9990ca7b58d25195f09740cefd0b3935e0261e72cd3200c8678ca635a9c1",
-      "revision": 1,
-      "updated_at": "2026-10-22T02:56:04.151Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "F-Zero: Maximum Velocity"
     }
   ]
 }

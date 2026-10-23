@@ -15,6 +15,7 @@ const el = (id) => document.getElementById(id);
 const gameForm = el('gameForm');
 const existingGame = el('existingGame');
 const gameName = el('gameName');
+const gameNameEn = el('gameNameEn');
 const gameType = el('gameType');
 const romFile = el('romFile');
 const coverFile = el('coverFile');
@@ -266,6 +267,8 @@ function selectExistingGame(id) {
     state.config.game_types[game.game_type]?.upload_enabled !== false;
   gameName.value = game.name;
   gameName.readOnly = !uploadEnabled;
+  gameNameEn.value = game.name_en || '';
+  gameNameEn.readOnly = !uploadEnabled;
   gameType.value = game.game_type;
   gameType.disabled = true;
   romFile.value = '';
@@ -303,6 +306,7 @@ function clearEditMode() {
   existingGame.value = '';
   gameType.disabled = false;
   gameName.readOnly = false;
+  gameNameEn.readOnly = false;
   romFile.disabled = false;
   romFile.required = true;
   el('romRequired').classList.remove('hidden');
@@ -392,6 +396,7 @@ async function handleSubmit(event) {
 
   const form = new FormData();
   form.append('name', gameName.value.trim());
+  form.append('name_en', gameNameEn.value.trim());
   form.append('game_type', gameType.value);
   if (rom) form.append('rom', rom, rom.name);
   if (state.editingId) form.append('id', state.editingId);

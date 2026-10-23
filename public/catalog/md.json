@@ -1,29 +1,31 @@
 {
   "schema_version": 1,
   "game_type": "MD",
-  "updated_at": "2026-10-23T01:47:53.482Z",
+  "updated_at": "2026-10-23T07:06:28.491Z",
   "games": [
     {
       "id": "md-20261023-6f8ebeb2",
-      "name": "火枪英雄(2018新dump)(16Mb)",
+      "name": "火枪英雄",
       "cover_path": null,
       "rom_path": "../roms/md/md-20261023-6f8ebeb2/game.zip",
       "file_name": "md202610236f8ebeb2.zip",
       "file_size": 1335946,
       "sha256": "467cbefe3f8a0768e6a12e18f366ea71c8e996011a19dd5799ace41d66a4eebe",
-      "revision": 1,
-      "updated_at": "2026-10-23T01:47:53.482Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Gunstar Heroes"
     },
     {
       "id": "md-20261023-e7b1e5ab",
-      "name": "幽游白书 - 魔强统一战 (简) (模拟天下)(24Mb)",
+      "name": "幽游白书 - 魔强统一战",
       "cover_path": null,
       "rom_path": "../roms/md/md-20261023-e7b1e5ab/game.zip",
       "file_name": "md20261023e7b1e5ab.zip",
       "file_size": 1167063,
       "sha256": "d25062b6161e465ed680f080fc3aa8d7e93bdf3d3fd57570ce72671c744287b2",
-      "revision": 1,
-      "updated_at": "2026-10-23T01:45:24.800Z"
+      "revision": 2,
+      "updated_at": "2026-10-23T07:06:28.491Z",
+      "name_en": "Yu Yu Hakusho: Makyou Toitsusen"
     }
   ]
 }
