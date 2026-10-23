@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "MD",
-  "updated_at": "2026-10-23T01:45:24.800Z",
+  "updated_at": "2026-10-23T01:47:53.482Z",
   "games": [
+    {
+      "id": "md-20261023-6f8ebeb2",
+      "name": "火枪英雄(2018新dump)(16Mb)",
+      "cover_path": null,
+      "rom_path": "../roms/md/md-20261023-6f8ebeb2/game.zip",
+      "file_name": "md202610236f8ebeb2.zip",
+      "file_size": 1335946,
+      "sha256": "467cbefe3f8a0768e6a12e18f366ea71c8e996011a19dd5799ace41d66a4eebe",
+      "revision": 1,
+      "updated_at": "2026-10-23T01:47:53.482Z"
+    },
     {
       "id": "md-20261023-e7b1e5ab",
       "name": "幽游白书 - 魔强统一战 (简) (模拟天下)(24Mb)",
