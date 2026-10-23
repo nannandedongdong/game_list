@@ -1,8 +1,19 @@
 {
   "schema_version": 1,
   "game_type": "GBA",
-  "updated_at": "2026-10-22T09:58:57.241Z",
+  "updated_at": "2026-10-23T02:15:53.930Z",
   "games": [
+    {
+      "id": "gba-20261023-80c671ab",
+      "name": "恶魔城 - 晓月圆舞曲[九柳](简)(JP)(64Mb)",
+      "cover_path": null,
+      "rom_path": "../roms/gba/gba-20261023-80c671ab/game.zip",
+      "file_name": "gba2026102380c671ab.zip",
+      "file_size": 4269205,
+      "sha256": "903c6c82cc3ad8d6c1f8b61823cc1e9bb86971f567bc42dcab0eb8c5120dff6d",
+      "revision": 1,
+      "updated_at": "2026-10-23T02:15:53.930Z"
+    },
     {
       "id": "gba-20261022-a43607f1",
       "name": "超级马里奥A Super Mario Advance(JP)",
