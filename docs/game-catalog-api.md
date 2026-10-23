@@ -22,13 +22,13 @@ https://raw.githubusercontent.com/nannandedongdong/game_list/main/public
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
 
-CDN 备用地址：
+GitHub 代理备用地址：
 
 ```text
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/index.json
+https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
 
-两种地址的文件目录结构完全一致。客户端建议先请求 GitHub Raw，超时或失败后再切换到 jsDelivr。当前测试环境中 Raw 地址可能超时，而 jsDelivr 返回正常。
+两种地址的文件目录结构完全一致。客户端建议先请求 GitHub Raw，超时或失败后再切换到 `gh-proxy.com` Raw 代理。当前仓库超过 jsDelivr 的 50MB 包限制，因此不再使用 jsDelivr。
 
 仓库地址：
 
@@ -247,10 +247,10 @@ GitHub Raw：
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/<path>
 ```
 
-jsDelivr：
+GitHub 代理：
 
 ```text
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/<path>
+https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/<path>
 ```
 
 例如：
@@ -259,40 +259,16 @@ https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/<path>
 Raw:
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json
 
-jsDelivr:
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/gba.json
+GitHub 代理:
+https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json
 ```
 
 建议客户端：
 
 1. 优先请求 Raw；
-2. 连接超时、DNS 失败或 HTTP 5xx 时切换 jsDelivr；
+2. 连接超时、DNS 失败或 HTTP 5xx 时切换 `gh-proxy.com`；
 3. 下载 ROM 时也按同样策略切换备用域名；
-4. 主流程不依赖 GitHub API；仅在 Raw 和普通 jsDelivr 都不可用时，用 GitHub API 获取最新 commit。
-
-注意：jsDelivr 的 `@main` 分支地址有 CDN 缓存，新上传游戏可能有延迟，甚至可能短时间返回旧列表；GitHub Raw 更适合立即读取最新数据。
-
-### 8.1 jsDelivr 缓存旧数据时的处理
-
-如果 GitHub Raw 请求失败，而 `@main` 的 jsDelivr 地址返回旧数据，可以先查询仓库最新 commit：
-
-```text
-GET https://api.github.com/repos/nannandedongdong/game_list/commits/main
-```
-
-从响应中读取 `sha`，再使用固定 commit 的 jsDelivr 地址：
-
-```text
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@<commit-sha>/public/catalog/index.json
-```
-
-格式示例（SHA 仅用于演示，客户端应使用 API 返回的最新 SHA）：
-
-```text
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@<commit-sha>/public/catalog/index.json
-```
-
-这种方式能避开 `@main` 的缓存问题。注意 GitHub API 有未登录请求频率限制，建议只在 Raw 与普通 jsDelivr 都失败时使用，并缓存本次拿到的 commit SHA。
+4. 主流程不依赖 GitHub API。
 
 ## 9. 缓存与刷新
 
@@ -370,4 +346,4 @@ data class GameItem(
 - 增加 GitHub Raw 与 jsDelivr 双地址策略。
 - 游戏条目增加 `name_en` 英文字段。
 - 中文和英文游戏名均移除末尾括号中的版本、日期和地区信息。
-- 增加 jsDelivr `@main` 缓存旧数据时，通过 GitHub API 获取 commit SHA 再访问固定版本的方法。
+- 仓库超过 jsDelivr 50MB 限制后，备用线路改为 `gh-proxy.com`。

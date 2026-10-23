@@ -76,7 +76,7 @@ publisher.config.json
 | `repository.contentRoot` | 公开文件目录，默认 `public` |
 | `repository.githubUrl` | 页面显示的 GitHub 地址 |
 | `publicBaseUrl` | 手机端优先访问的公开根地址 |
-| `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 jsDelivr 备用根地址 |
+| `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 GitHub 代理备用根地址 |
 | `limits.romBytes` | 单个游戏包上限，默认 10MB；ZIP 按 ZIP 文件大小计算 |
 | `limits.coverBytes` | 单海报上限，默认 2MB |
 | `limits.zipMaxEntries` | ZIP 内文件数量上限，默认 2048 |
@@ -326,7 +326,7 @@ git pull --rebase --autostash origin main
 
 GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<updated_at>`。
 
-如果主地址网络不可用，可切换到配置中的 jsDelivr 备用地址。注意 jsDelivr 的 `@main` 有 CDN 缓存，最新数据仍优先使用 GitHub Raw。
+如果主地址网络不可用，可切换到配置中的 `gh-proxy.com` Raw 代理备用地址。当前仓库超过 jsDelivr 的 50MB 包限制，因此不再使用 jsDelivr。
 
 ## 11. 变更记录
 

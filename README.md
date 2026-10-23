@@ -17,10 +17,10 @@
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
 
-备用 CDN：
+GitHub 代理备用地址：
 
 ```text
-https://cdn.jsdelivr.net/gh/nannandedongdong/game_list@main/public/catalog/index.json
+https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/index.json
 ```
 
 ## 本地发布后台
