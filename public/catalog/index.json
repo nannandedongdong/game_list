@@ -1,9 +1,16 @@
 {
   "schema_version": 1,
+  "updated_at": "2026-10-23T08:50:10.558Z",
   "lists": {
     "GBA": "gba.json",
     "MD": "md.json",
     "CPS1": "cps1.json",
     "FC": "fc.json"
+  },
+  "list_versions": {
+    "GBA": "2026-10-23T08:02:07.012Z",
+    "MD": "2026-10-23T07:06:28.491Z",
+    "CPS1": "2026-10-23T07:06:28.491Z",
+    "FC": "2026-10-23T08:50:10.558Z"
   }
 }

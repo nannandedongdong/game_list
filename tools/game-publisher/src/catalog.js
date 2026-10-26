@@ -30,18 +30,7 @@ class CatalogStore {
       }
     }
 
-    const indexPath = path.join(this.catalogRoot, 'index.json');
-    if (!fs.existsSync(indexPath)) {
-      this.writeJsonAtomic(indexPath, {
-        schema_version: SCHEMA_VERSION,
-        lists: Object.fromEntries(
-          Object.entries(this.config.gameTypes).map(([type, item]) => [
-            type,
-            item.catalog,
-          ]),
-        ),
-      });
-    }
+    this.writeIndex();
   }
 
   emptyCatalog(type) {
@@ -51,6 +40,42 @@ class CatalogStore {
       updated_at: null,
       games: [],
     };
+  }
+
+  indexPath() {
+    return path.join(this.catalogRoot, 'index.json');
+  }
+
+  writeIndex() {
+    const catalogs = Object.keys(this.config.gameTypes).map((type) => ({
+      type,
+      catalog: this.readCatalog(type),
+    }));
+    const versions = Object.fromEntries(
+      catalogs.map(({ type, catalog }) => [type, catalog.updated_at || null]),
+    );
+    const timestamps = Object.values(versions)
+      .filter((value) => typeof value === 'string' && value)
+      .sort();
+    this.writeJsonAtomic(this.indexPath(), {
+      schema_version: SCHEMA_VERSION,
+      updated_at: timestamps.length > 0 ? timestamps[timestamps.length - 1] : null,
+      lists: Object.fromEntries(
+        Object.entries(this.config.gameTypes).map(([type, item]) => [
+          type,
+          item.catalog,
+        ]),
+      ),
+      list_versions: versions,
+    });
+  }
+
+  nextTimestamp(previous) {
+    const now = Date.now();
+    const previousTime = Date.parse(previous || '');
+    return new Date(
+      Number.isFinite(previousTime) ? Math.max(now, previousTime + 1) : now,
+    ).toISOString();
   }
 
   catalogPath(type) {

@@ -122,8 +122,10 @@ class GamePublisher {
     );
 
     const catalogPath = this.store.catalogPath(type);
+    const indexPath = this.store.indexPath();
     const relativeCatalogPath = this.toRelative(catalogPath);
-    const initialPaths = [relativeCatalogPath];
+    const relativeIndexPath = this.toRelative(indexPath);
+    const initialPaths = [relativeCatalogPath, relativeIndexPath];
     if (isUpdate) {
       if (rom) {
         initialPaths.push(
@@ -166,8 +168,8 @@ class GamePublisher {
       }
     }
 
-    const now = new Date().toISOString();
     const catalog = this.store.readCatalog(type);
+    const now = this.store.nextTimestamp(catalog.updated_at);
     const romDirectory = this.store.gameDirectory(type, 'rom', id);
     const coverDirectory = this.store.gameDirectory(type, 'cover', id);
     const romPath = rom
@@ -233,7 +235,7 @@ class GamePublisher {
       };
     }
 
-    const affectedAbsolutePaths = [catalogPath];
+    const affectedAbsolutePaths = [catalogPath, indexPath];
     if (rom) affectedAbsolutePaths.push(romDirectory);
     if (coverExtension) affectedAbsolutePaths.push(coverDirectory);
     const transaction = this.createTransaction(affectedAbsolutePaths);
@@ -260,8 +262,9 @@ class GamePublisher {
       }
       catalog.updated_at = now;
       this.store.writeCatalog(type, catalog);
+      this.store.writeIndex();
 
-      const commitPaths = [relativeCatalogPath];
+      const commitPaths = [relativeCatalogPath, relativeIndexPath];
       if (rom) commitPaths.push(this.toRelative(romDirectory));
       if (coverExtension) commitPaths.push(this.toRelative(coverDirectory));
 
@@ -314,10 +317,12 @@ class GamePublisher {
 
     const type = initial.type;
     const catalogPath = this.store.catalogPath(type);
+    const indexPath = this.store.indexPath();
     const romDirectory = this.store.gameDirectory(type, 'rom', id);
     const coverDirectory = this.store.gameDirectory(type, 'cover', id);
     await prepareRepository(this.config, [
       this.toRelative(catalogPath),
+      this.toRelative(indexPath),
       this.toRelative(romDirectory),
       this.toRelative(coverDirectory),
     ]);
@@ -329,6 +334,7 @@ class GamePublisher {
 
     const transaction = this.createTransaction([
       catalogPath,
+      indexPath,
       romDirectory,
       coverDirectory,
     ]);
@@ -337,8 +343,9 @@ class GamePublisher {
     try {
       const catalog = current.catalog;
       catalog.games.splice(current.index, 1);
-      catalog.updated_at = new Date().toISOString();
+      catalog.updated_at = this.store.nextTimestamp(catalog.updated_at);
       this.store.writeCatalog(type, catalog);
+      this.store.writeIndex();
       fs.rmSync(romDirectory, { recursive: true, force: true });
       fs.rmSync(coverDirectory, { recursive: true, force: true });
 
@@ -346,6 +353,7 @@ class GamePublisher {
         this.config,
         [
           this.toRelative(catalogPath),
+          this.toRelative(indexPath),
           this.toRelative(romDirectory),
           this.toRelative(coverDirectory),
         ],

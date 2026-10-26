@@ -1,6 +1,11 @@
 # 本地游戏发布后台
 
-本地网页后台负责把 ROM、可选海报以及对应类型 JSON 一次性提交到 GitHub。每次新增、更新或删除只创建一个 Git commit，并立即 push。
+本地网页后台负责把 ROM、可选海报、对应类型 JSON 和版本索引一次性提交到 GitHub。每次新增、更新或删除只创建一个 Git commit，并立即 push。
+
+分类表的顶层 `updated_at` 同时作为该分类的版本号，使用毫秒精度 ISO 8601 时间。发布成功时，同一次提交会更新：
+
+- `public/catalog/<类型>.json` 的 `updated_at`
+- `public/catalog/index.json` 的 `updated_at` 和 `list_versions`
 
 ## 1. 仓库与公开目录
 
@@ -329,6 +334,12 @@ GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<update
 如果主地址网络不可用，可切换到配置中的 `gh-proxy.com` Raw 代理备用地址。当前仓库超过 jsDelivr 的 50MB 包限制，因此不再使用 jsDelivr。
 
 ## 11. 变更记录
+
+### 2026-10-26
+
+- 分类表 `updated_at` 作为毫秒级版本号。
+- `index.json` 增加全局 `updated_at` 和分类级 `list_versions`。
+- 分类表、索引和游戏文件在同一次 Git commit 中提交。
 
 ### 2026-10-22
 

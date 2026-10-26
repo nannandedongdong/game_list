@@ -40,13 +40,22 @@ https://github.com/nannandedongdong/game_list
 
 ```text
 GET catalog/index.json
-    → 获取每种游戏类型对应的 JSON 列表文件名
-    → 并行或按需 GET 各类型列表
+    → 获取每种游戏类型对应的文件名和毫秒级时间版本
+    → 与本地缓存的分类表 updated_at 比较
+    → 版本一致：直接使用本地分类表，不发起分类表请求
+    → 版本不同：只 GET 发生变化的分类表
     → 展示 games 数组
     → 用户点击获取
     → 下载 rom_path 指向的 ROM
     → 用 file_size 和 sha256 校验文件
 ```
+
+版本判断规则：
+
+- `index.json.list_versions[类型]` 是该分类当前版本；
+- 分类 JSON 顶层 `updated_at` 是同一版本；
+- 两个字符串完全相等时，客户端不得重新下载该分类表；
+- 新增、更新、删除游戏成功后，发布端在同一次 Git commit 中同时更新分类表和索引。
 
 当前类型：
 
@@ -70,11 +79,18 @@ public/catalog/index.json
 ```json
 {
   "schema_version": 1,
+  "updated_at": "2026-10-26T04:05:06.789Z",
   "lists": {
     "GBA": "gba.json",
     "MD": "md.json",
     "CPS1": "cps1.json",
     "FC": "fc.json"
+  },
+  "list_versions": {
+    "GBA": "2026-10-26T01:02:03.456Z",
+    "MD": "2026-10-26T02:03:04.567Z",
+    "CPS1": "2026-10-26T03:04:05.678Z",
+    "FC": "2026-10-26T04:05:06.789Z"
   }
 }
 ```
@@ -84,7 +100,9 @@ public/catalog/index.json
 | 字段 | 类型 | 说明 |
 |---|---|---|
 | `schema_version` | number | 数据结构版本，当前固定为 `1` |
+| `updated_at` | string/null | 所有分类中最新的更新时间，ISO 8601，毫秒精度 |
 | `lists` | object | 游戏类型到列表文件名的映射 |
+| `list_versions` | object | 游戏类型到该分类 `updated_at` 时间版本的映射 |
 
 列表文件与 `index.json` 位于同一目录，所以客户端应相对于 `index.json` 的地址解析列表文件名。
 
@@ -276,9 +294,12 @@ https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_lis
 
 建议：
 
-- 启动或进入在线游戏页时请求一次索引；
-- 类型列表可以缓存，但用户下拉刷新时重新请求；
-- JSON 请求可附加版本参数，例如 `?v=<updated_at>`；
+- 启动或进入在线游戏页时只请求一次较小的 `index.json`；
+- 本地缓存每张分类表的原文和顶层 `updated_at`；
+- `list_versions[类型] == 本地分类表.updated_at` 时直接使用缓存，不请求分类表；
+- 版本不一致时只请求对应分类表；
+- 如果分类表与索引版本暂时不一致，可使用 `?v=<updated_at>` 绕过中间缓存后重试；
+- 用户下拉刷新时重新检查索引，但版本相同的分类表仍不下载；
 - 海报加载失败时显示本地默认封面；
 - 不依赖 GitHub API 的分页或鉴权接口。
 
@@ -298,7 +319,9 @@ https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_lis
 ```kotlin
 data class GameIndex(
     @SerializedName("schema_version") val schemaVersion: Int,
+    @SerializedName("updated_at") val updatedAt: String?,
     val lists: Map<String, String>,
+    @SerializedName("list_versions") val listVersions: Map<String, String?>,
 )
 
 data class GameCatalog(
@@ -333,6 +356,13 @@ data class GameItem(
 - 下载完成后必须按整个已发布文件校验 `file_size` 和 `sha256`。
 
 ## 14. 变更记录
+
+### 2026-10-26
+
+- 索引增加全局 `updated_at` 和分类级 `list_versions`。
+- 分类版本使用分类表顶层毫秒级 `updated_at`，不再额外生成另一套版本号。
+- 客户端按索引版本与本地分类版本比较，只下载发生变化的分类表。
+- 发布端在同一次 Git commit 中提交分类表和索引。
 
 ### 2026-10-22
 
