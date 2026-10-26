@@ -1,16 +1,42 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "updated_at": "2026-10-23T08:50:10.558Z",
-  "lists": {
-    "GBA": "gba.json",
-    "MD": "md.json",
-    "CPS1": "cps1.json",
-    "FC": "fc.json"
+  "repositories": {
+    "gamelist": {
+      "url": "https://github.com/nannandedongdong/game_list",
+      "branch": "main",
+      "public_base_url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+      "fallback_public_base_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public"
+    }
   },
-  "list_versions": {
-    "GBA": "2026-10-23T08:02:07.012Z",
-    "MD": "2026-10-23T07:06:28.491Z",
-    "CPS1": "2026-10-23T07:06:28.491Z",
-    "FC": "2026-10-23T08:50:10.558Z"
+  "catalogs": {
+    "GBA": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json",
+      "updated_at": "2026-10-23T08:02:07.012Z"
+    },
+    "MD": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/md.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/md.json",
+      "updated_at": "2026-10-23T07:06:28.491Z"
+    },
+    "CPS1": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/cps1.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/cps1.json",
+      "updated_at": "2026-10-23T07:06:28.491Z"
+    },
+    "FC": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/fc.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/fc.json",
+      "updated_at": "2026-10-23T08:50:10.558Z"
+    }
   }
 }

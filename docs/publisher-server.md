@@ -1,67 +1,100 @@
 # 本地游戏发布后台
 
-本地网页后台负责把 ROM、可选海报、对应类型 JSON 和版本索引一次性提交到 GitHub。每次新增、更新或删除只创建一个 Git commit，并立即 push。
+本地网页后台支持“总库 + 分类仓库”的多仓库发布。`gamelist` 作为总库保存版本索引，每个游戏类型可以指向自己的 GitHub 仓库。
 
-分类表的顶层 `updated_at` 同时作为该分类的版本号，使用毫秒精度 ISO 8601 时间。发布成功时，同一次提交会更新：
+分类表的顶层 `updated_at` 同时作为该分类的版本号，使用毫秒精度 ISO 8601 时间。发布成功时：
 
-- `public/catalog/<类型>.json` 的 `updated_at`
-- `public/catalog/index.json` 的 `updated_at` 和 `list_versions`
+- 分类仓库更新 `public/catalog/<类型>.json`、ROM 和海报；
+- 总库更新 `public/catalog/index.json` 中的分类地址、仓库地址和 `updated_at`；
+- 分类与总库是同一个仓库时只创建一个 Git commit；
+- 分类使用独立仓库时，先提交并 push 分类仓库，再提交并 push 总库索引。
 
 ## 1. 仓库与公开目录
 
-- GitHub 仓库：`https://github.com/nannandedongdong/game_list`
+默认仓库：
+
+- 总库：`https://github.com/nannandedongdong/game_list`
 - 分支：`main`
 - 公开目录：`public/`
 - Git remote：`origin`
 
-目录结构：
-
-```text
-public/
-├── catalog/
-│   ├── index.json
-│   ├── gba.json
-│   ├── md.json
-│   ├── cps1.json
-│   └── fc.json
-├── covers/<类型>/<game-id>/cover.<jpg|png|webp>
-└── roms/<类型>/<game-id>/game.<扩展名>
-```
-
-`index.json` 结构：
+第一版 GBA / MD / CPS1 / FC 都指向总库。以后若 GBA 需要独立仓库，可增加类似配置：
 
 ```json
-{
-  "schema_version": 1,
-  "updated_at": "2026-10-26T04:05:06.789Z",
-  "lists": {
-    "GBA": "gba.json",
-    "MD": "md.json",
-    "CPS1": "cps1.json",
-    "FC": "fc.json"
+"repositories": {
+  "gamelist": {
+    "root": ".",
+    "remote": "origin",
+    "branch": "main",
+    "contentRoot": "public",
+    "githubUrl": "https://github.com/nannandedongdong/game_list",
+    "publicBaseUrl": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+    "fallbackPublicBaseUrl": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public"
   },
-  "list_versions": {
-    "GBA": "2026-10-26T01:02:03.456Z",
-    "MD": "2026-10-26T02:03:04.567Z",
-    "CPS1": "2026-10-26T03:04:05.678Z",
-    "FC": "2026-10-26T04:05:06.789Z"
+  "gba": {
+    "root": "../game_list_gba",
+    "remote": "origin",
+    "branch": "main",
+    "contentRoot": "public",
+    "githubUrl": "https://github.com/nannandedongdong/game_list_gba",
+    "publicBaseUrl": "https://raw.githubusercontent.com/nannandedongdong/game_list_gba/main/public",
+    "fallbackPublicBaseUrl": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list_gba/main/public"
   }
 }
 ```
 
-版本一致性要求：
+然后把 GBA 的类型配置改成：
 
-- `list_versions[类型]` 必须等于对应分类表顶层的 `updated_at`。
+```json
+"GBA": {
+  "catalog": "gba.json",
+  "extensions": [".gba", ".zip"],
+  "repository": "gba"
+}
+```
+
+总库只保存 `index.json`，分类仓库保存自己的列表、海报和 ROM。独立仓库目录必须是已经 clone 好的 Git 工作区。
+
+总库 `index.json` 使用 schema 2：
+
+```json
+{
+  "schema_version": 2,
+  "updated_at": "2026-10-26T04:05:06.789Z",
+  "repositories": {
+    "gamelist": {
+      "url": "https://github.com/nannandedongdong/game_list",
+      "branch": "main",
+      "public_base_url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+      "fallback_public_base_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public"
+    }
+  },
+  "catalogs": {
+    "GBA": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json",
+      "updated_at": "2026-10-26T01:02:03.456Z"
+    }
+  }
+}
+```
+
+一致性要求：
+
+- `catalogs[类型].updated_at` 必须等于分类表顶层的 `updated_at`。
+- `catalogs[类型].url` 是完整地址，客户端不再根据总库相对路径拼接。
 - 发布器使用单调递增的毫秒时间，避免连续操作落在同一毫秒时版本不变。
-- 新增、更新、删除成功时，分类表、`index.json` 和游戏文件会加入同一个 commit。
-- 如果 Git push 失败，远端仍是旧索引和旧分类表，客户端不会误判为已更新。
+- 分类独立仓库发布失败时，总库索引不会更新。
+- 分类仓库 push 成功但总库索引 push 失败时，页面会明确提示失败仓库并允许重试。
 
 ## 2. 环境要求
 
 - Node.js 20 或更高版本
 - Git
-- 当前用户拥有该仓库的 SSH 推送权限
-- 仓库 remote `origin` 已配置为：
+- 当前用户拥有所有已配置仓库的 SSH 推送权限
+- 每个仓库 remote `origin` 已配置为对应 GitHub 地址，例如：
 
 ```text
 git@github.com:nannandedongdong/game_list.git
@@ -104,16 +137,19 @@ publisher.config.json
 |---|---|
 | `server.host` | 监听地址，默认 `127.0.0.1` |
 | `server.port` | 本地端口，默认 `4173` |
-| `repository.remote` | Git remote，默认 `origin` |
-| `repository.branch` | 发布分支，默认 `main` |
-| `repository.contentRoot` | 公开文件目录，默认 `public` |
-| `repository.githubUrl` | 页面显示的 GitHub 地址 |
-| `publicBaseUrl` | 手机端优先访问的公开根地址 |
-| `fallbackPublicBaseUrl` | GitHub Raw 不可用时使用的 GitHub 代理备用根地址 |
+| `mainRepository` | 总库仓库 ID，默认 `gamelist` |
+| `repositories.<id>.root` | 本地 Git 工作区目录，相对于配置文件目录 |
+| `repositories.<id>.remote` | Git remote，默认 `origin` |
+| `repositories.<id>.branch` | 发布分支，默认 `main` |
+| `repositories.<id>.contentRoot` | 公开文件目录，默认 `public` |
+| `repositories.<id>.githubUrl` | 页面显示和索引使用的 GitHub 地址 |
+| `repositories.<id>.publicBaseUrl` | 手机端优先访问的公开根地址 |
+| `repositories.<id>.fallbackPublicBaseUrl` | GitHub 代理备用根地址 |
 | `limits.romBytes` | 单个游戏包上限，默认 10MB；ZIP 按 ZIP 文件大小计算 |
 | `limits.coverBytes` | 单海报上限，默认 2MB |
 | `limits.zipMaxEntries` | ZIP 内文件数量上限，默认 2048 |
 | `limits.zipMaxUncompressedBytes` | ZIP 解压后总大小上限，默认 128MB |
+| `gameTypes.<类型>.repository` | 该分类使用的仓库 ID，默认总库 |
 | `gameTypes` | 类型、JSON 文件名、允许的 ROM 扩展名 |
 
 临时覆盖配置可使用环境变量：
@@ -149,7 +185,7 @@ CPS1 是特例：上传的 ZIP 文件名必须是 MAME 集合短名，例如 `pu
 - 服务端拒绝新增 CPS1 游戏或替换 CPS1 ROM；
 - CPS1 游戏仍可正常浏览和删除。
 
-一次 commit 包含：
+同一个仓库发布时，一次 commit 包含：
 
 ```text
 public/roms/<类型>/<game-id>/game.<扩展名>
@@ -157,6 +193,11 @@ public/covers/<类型>/<game-id>/cover.<扩展名>   # 仅选择海报时
 public/catalog/<类型>.json
 public/catalog/index.json
 ```
+
+分类使用独立仓库时产生两个 push：
+
+1. 分类仓库：ROM、海报和 `<类型>.json`；
+2. 总库：只更新 `index.json`。
 
 ### 更新游戏
 
@@ -242,12 +283,12 @@ git push origin HEAD:main
 
 | 接口 | 说明 |
 |---|---|
-| `GET /api/health` | 服务与 Git 状态 |
+| `GET /api/health` | 服务状态和每个已配置仓库的 Git 状态 |
 | `GET /api/config` | 当前配置和限制 |
-| `GET /api/games` | 读取本地游戏数据和各分类 `updated_at` 版本 |
+| `GET /api/games` | 读取全部分类的游戏、版本和所属仓库 |
 | `POST /api/games` | multipart 上传或更新游戏 |
 | `DELETE /api/games/:id` | 删除游戏 |
-| `POST /api/sync` | 重试 push |
+| `POST /api/sync?repository=<id>` | 重试指定仓库的 push |
 
 `GET /api/games` 返回：
 
@@ -260,11 +301,19 @@ git push origin HEAD:main
     "MD": "2026-10-23T07:06:28.491Z",
     "CPS1": "2026-10-23T07:06:28.491Z",
     "FC": "2026-10-23T08:50:10.558Z"
+  },
+  "catalog_repositories": {
+    "GBA": {
+      "repository": "gamelist",
+      "url": "https://github.com/nannandedongdong/game_list",
+      "public_base_url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+      "fallback_public_base_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public"
+    }
   }
 }
 ```
 
-网页右侧“在线游戏”标题后的版本标签读取 `catalog_versions`，切换 GBA / MD / CPS1 / FC 时会同步显示对应分类版本时间，包括毫秒。
+网页右侧“在线游戏”版本标签下方会显示当前分类的发布仓库地址。切换 GBA / MD / CPS1 / FC 时，版本时间和仓库地址会同步更新。
 
 `POST /api/games` 的 multipart 字段：
 
@@ -335,7 +384,9 @@ npm test
 - 海报文件头识别；
 - ID 与 SHA-256；
 - 类型 JSON 与索引生成；
-- 相对资源地址解析。
+- 同仓库发布和多仓库 URL 生成；
+- 双仓库测试：分类仓库保存 ROM/分类，总库只保存索引；
+- 分类资源地址解析。
 
 ## 10. 常见问题
 
@@ -373,6 +424,15 @@ git pull --rebase --autostash origin main
 
 处理冲突后重新发布。
 
+### 分类仓库配置错误
+
+检查：
+
+- `repositories.<id>.root` 是否指向已经 clone 的 Git 工作区；
+- remote、branch 和 GitHub 地址是否正确；
+- 当前用户是否拥有该仓库的 push 权限；
+- `gameTypes.<类型>.repository` 是否引用了存在的仓库 ID。
+
 ### 手机端还看到旧数据
 
 GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<updated_at>`。
@@ -382,6 +442,13 @@ GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<update
 ## 11. 变更记录
 
 ### 2026-10-26
+
+- 发布器支持“总库 + 分类独立仓库”的多仓库配置。
+- `index.json` 升级为 schema 2，使用 `repositories` 和 `catalogs` 保存仓库地址、分类 URL 和版本。
+- 发布后台“在线游戏”区域增加当前分类的发布仓库地址。
+- 分类在独立仓库时先 push 分类仓库，再 push 总库索引。
+
+### 2026-10-26（早期）
 
 - 分类表 `updated_at` 作为毫秒级版本号。
 - `index.json` 增加全局 `updated_at` 和分类级 `list_versions`。

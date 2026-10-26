@@ -4,6 +4,7 @@ const state = {
   config: null,
   games: [],
   catalogVersions: {},
+  catalogRepositories: {},
   activeType: 'GBA',
   editingId: null,
   pendingDeleteGame: null,
@@ -29,6 +30,8 @@ const gameList = el('gameList');
 const typeTabs = el('typeTabs');
 const catalogVersion = el('catalogVersion');
 const catalogVersionText = el('catalogVersionText');
+const catalogRepositoryLabel = el('catalogRepositoryLabel');
+const catalogRepositoryLink = el('catalogRepositoryLink');
 const newGameButton = el('newGameButton');
 const deleteDialog = el('deleteDialog');
 const deleteDialogText = el('deleteDialogText');
@@ -51,11 +54,12 @@ async function init() {
     state.config = configResult;
     state.games = gamesResult.games || [];
     state.catalogVersions = gamesResult.catalog_versions || {};
+    state.catalogRepositories = gamesResult.catalog_repositories || {};
     renderConfig();
     renderTypeTabs();
     renderExistingOptions();
     renderGames();
-    showNotice('后台已就绪。每次发布只创建一个 Git commit。', 'success', 3500);
+    showNotice('后台已就绪。分类使用独立仓库时，会分别提交分类仓库和总库索引。', 'success', 4200);
   } catch (error) {
     showNotice(error.message, 'error');
   }
@@ -79,11 +83,13 @@ function bindEvents() {
 }
 
 function renderConfig() {
-  const repo = state.config.repository;
+  const mainRepositoryId = state.config.main_repository;
+  const repo = state.config.repositories[mainRepositoryId];
   renderUploadTypes();
   el('repoLink').textContent = repo.url || `${repo.remote}/${repo.branch}`;
   el('repoLink').href = repo.url || '#';
-  el('branchLabel').textContent = `${repo.remote} / ${repo.branch} · ${repo.content_root || repo.contentRoot}`;
+  el('branchLabel').textContent =
+    `${mainRepositoryId} · ${repo.remote} / ${repo.branch} · ${repo.content_root}`;
   el('romHint').textContent = `最大 ${formatLimit(state.config.limits.rom_bytes)}`;
   el('coverHint').textContent = `JPG / PNG / WebP，最大 ${formatLimit(state.config.limits.cover_bytes)}`;
   updateExtensionHint();
@@ -158,6 +164,17 @@ function renderGames() {
   catalogVersion.title = version
     ? `${state.activeType} 分类版本\n${version}`
     : `${state.activeType} 分类尚无版本时间`;
+  const repository = state.catalogRepositories[state.activeType];
+  catalogRepositoryLabel.textContent = `${state.activeType} 发布仓库`;
+  if (repository?.url) {
+    catalogRepositoryLink.textContent = repository.url;
+    catalogRepositoryLink.href = repository.url;
+    catalogRepositoryLink.title = `${repository.repository} · ${repository.url}`;
+  } else {
+    catalogRepositoryLink.textContent = '未配置仓库地址';
+    catalogRepositoryLink.href = '#';
+    catalogRepositoryLink.title = '';
+  }
   gameList.replaceChildren();
 
   if (visible.length === 0) {
@@ -435,7 +452,10 @@ async function handleSubmit(event) {
     clearEditMode();
   } catch (error) {
     showNotice(error.message, 'error');
-    if (error.code === 'PUSH_FAILED') syncButton.classList.remove('hidden');
+    if (error.code === 'PUSH_FAILED') {
+      syncButton.dataset.repository = error.repository || '';
+      syncButton.classList.remove('hidden');
+    }
   } finally {
     setBusy(false);
   }
@@ -458,6 +478,7 @@ function upload(url, body) {
         const error = new Error(payload.error || `上传失败 (HTTP ${request.status})`);
         error.code = payload.code;
         error.commit = payload.commit;
+        error.repository = payload.repository;
         reject(error);
       }
     });
@@ -470,6 +491,7 @@ async function reloadGames() {
   const result = await api('/api/games');
   state.games = result.games || [];
   state.catalogVersions = result.catalog_versions || {};
+  state.catalogRepositories = result.catalog_repositories || {};
   renderTypeTabs();
   renderExistingOptions();
   renderGames();
@@ -516,7 +538,11 @@ async function confirmDelete() {
       : `删除失败：${error.message}`;
     deleteRetryButton.classList.toggle('hidden', error.code !== 'PUSH_FAILED');
     deleteCloseButton.classList.remove('hidden');
-    if (error.code === 'PUSH_FAILED') syncButton.classList.remove('hidden');
+    if (error.code === 'PUSH_FAILED') {
+      deleteRetryButton.dataset.repository = error.repository || '';
+      syncButton.dataset.repository = error.repository || '';
+      syncButton.classList.remove('hidden');
+    }
   } finally {
     state.deleting = false;
   }
@@ -531,8 +557,12 @@ async function retryDeletePush() {
   deleteProgressText.textContent = '正在重试推送到 GitHub...';
   startDeleteProgress();
   try {
-    await api('/api/sync', { method: 'POST' });
-    finishDeleteProgress('推送成功，游戏已从公开列表删除。');
+    const repository = deleteRetryButton.dataset.repository;
+    const url = repository
+      ? `/api/sync?repository=${encodeURIComponent(repository)}`
+      : '/api/sync';
+    const result = await api(url, { method: 'POST' });
+    finishDeleteProgress(`${result.repository || repository || '主仓库'} 推送成功，游戏已从公开列表删除。`);
     syncButton.classList.add('hidden');
     await reloadGames();
     window.setTimeout(closeDeleteDialog, 900);
@@ -540,6 +570,7 @@ async function retryDeletePush() {
     stopDeleteProgress();
     deleteProgressWrap.classList.add('is-error');
     deleteProgressText.textContent = `推送仍然失败：${error.message}`;
+    if (error.repository) deleteRetryButton.dataset.repository = error.repository;
     deleteRetryButton.classList.remove('hidden');
     deleteCloseButton.classList.remove('hidden');
   } finally {
@@ -580,11 +611,19 @@ function closeDeleteDialog() {
 
 async function retryPush() {
   clearMessage();
+  const repository = syncButton.dataset.repository;
+  const url = repository
+    ? `/api/sync?repository=${encodeURIComponent(repository)}`
+    : '/api/sync';
   try {
-    await api('/api/sync', { method: 'POST' });
+    const result = await api(url, { method: 'POST' });
     syncButton.classList.add('hidden');
-    showNotice('推送成功，GitHub 上的文件已更新。', 'success');
+    showNotice(
+      `${result.repository || repository || '主仓库'} 推送成功，GitHub 上的文件已更新。`,
+      'success',
+    );
   } catch (error) {
+    if (error.repository) syncButton.dataset.repository = error.repository;
     showNotice(error.message, 'error');
   }
 }
@@ -597,6 +636,7 @@ async function api(url, options = {}) {
     const error = new Error(payload.error || `请求失败 (HTTP ${response.status})`);
     error.code = payload.code;
     error.commit = payload.commit;
+    error.repository = payload.repository;
     throw error;
   }
   return payload;

@@ -80,6 +80,23 @@ h2 { margin-top: 1px; font-size: 20px; letter-spacing: -0.02em; }
 .panel-title { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
 .list-heading { margin-bottom: 16px; }
 .heading-with-version { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.catalog-repository {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 720px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.catalog-repository span { flex: 0 0 auto; font-weight: 700; }
+.catalog-repository a {
+  min-width: 0;
+  overflow: hidden;
+  color: #6d82a4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 form { display: grid; gap: 16px; }
 label { display: grid; gap: 7px; color: #354158; font-weight: 600; }

@@ -121,24 +121,38 @@ class GamePublisher {
       this.config.coverBytes,
     );
 
+    const typeRepository = this.store.repositoryForType(type);
+    const mainRepository = this.store.mainRepository;
     const catalogPath = this.store.catalogPath(type);
     const indexPath = this.store.indexPath();
-    const relativeCatalogPath = this.toRelative(catalogPath);
-    const relativeIndexPath = this.toRelative(indexPath);
-    const initialPaths = [relativeCatalogPath, relativeIndexPath];
+    const typeInitialPaths = [
+      this.toRelative(typeRepository, catalogPath),
+    ];
     if (isUpdate) {
       if (rom) {
-        initialPaths.push(
-          this.toRelative(this.store.gameDirectory(type, 'rom', requestedId)),
+        typeInitialPaths.push(
+          this.toRelative(
+            typeRepository,
+            this.store.gameDirectory(type, 'rom', requestedId),
+          ),
         );
       }
       if (coverExtension) {
-        initialPaths.push(
-          this.toRelative(this.store.gameDirectory(type, 'cover', requestedId)),
+        typeInitialPaths.push(
+          this.toRelative(
+            typeRepository,
+            this.store.gameDirectory(type, 'cover', requestedId),
+          ),
         );
       }
     }
-    await prepareRepository(this.config, initialPaths);
+    await this.prepareRepositories([
+      { repository: typeRepository, paths: typeInitialPaths },
+      {
+        repository: mainRepository,
+        paths: [this.toRelative(mainRepository, indexPath)],
+      },
+    ]);
 
     if (isUpdate) {
       existing = this.store.findGame(requestedId);
@@ -239,7 +253,7 @@ class GamePublisher {
     if (rom) affectedAbsolutePaths.push(romDirectory);
     if (coverExtension) affectedAbsolutePaths.push(coverDirectory);
     const transaction = this.createTransaction(affectedAbsolutePaths);
-    let committed = false;
+    let pushedAny = false;
 
     try {
       if (rom) {
@@ -264,17 +278,42 @@ class GamePublisher {
       this.store.writeCatalog(type, catalog);
       this.store.writeIndex();
 
-      const commitPaths = [relativeCatalogPath, relativeIndexPath];
-      if (rom) commitPaths.push(this.toRelative(romDirectory));
-      if (coverExtension) commitPaths.push(this.toRelative(coverDirectory));
-
+      const typeCommitPaths = [this.toRelative(typeRepository, catalogPath)];
+      if (rom) typeCommitPaths.push(this.toRelative(typeRepository, romDirectory));
+      if (coverExtension) {
+        typeCommitPaths.push(this.toRelative(typeRepository, coverDirectory));
+      }
+      const indexCommitPaths = [this.toRelative(mainRepository, indexPath)];
       const action = isUpdate ? 'update' : 'add';
-      const commitResult = await commitAndPush(
-        this.config,
-        commitPaths,
-        `game: ${action} ${type} ${name}`,
-      );
-      committed = true;
+      const commits = {};
+      let primaryCommit;
+
+      if (typeRepository.id === mainRepository.id) {
+        const result = await commitAndPush(
+          typeRepository,
+          [...typeCommitPaths, ...indexCommitPaths],
+          `game: ${action} ${type} ${name}`,
+        );
+        primaryCommit = result.commit;
+        commits[typeRepository.id] = result.commit;
+        pushedAny = true;
+      } else {
+        const typeResult = await commitAndPush(
+          typeRepository,
+          typeCommitPaths,
+          `game: ${action} ${type} ${name}`,
+        );
+        commits[typeRepository.id] = typeResult.commit;
+        pushedAny = true;
+        const indexResult = await commitAndPush(
+          mainRepository,
+          indexCommitPaths,
+          `catalog: refresh index after ${action} ${type} ${name}`,
+        );
+        commits[mainRepository.id] = indexResult.commit;
+        primaryCommit = indexResult.commit;
+      }
+
       transaction.cleanup();
       return {
         ok: true,
@@ -295,13 +334,16 @@ class GamePublisher {
               ).toLowerCase(),
               preserved: true,
             },
-        commit: commitResult.commit,
+        commit: primaryCommit,
+        commits,
+        repository: typeRepository.id,
         pushed: true,
         public: this.store.publicGameUrls(type, game),
       };
     } catch (error) {
-      if (!committed && !error.pushFailed) transaction.rollback();
-      if (error.pushFailed) transaction.cleanup();
+      if (!pushedAny && !error.pushFailed) transaction.rollback();
+      else transaction.cleanup();
+      if (!error.repository) error.repository = typeRepository.id;
       throw error;
     }
   }
@@ -316,15 +358,25 @@ class GamePublisher {
     }
 
     const type = initial.type;
+    const typeRepository = this.store.repositoryForType(type);
+    const mainRepository = this.store.mainRepository;
     const catalogPath = this.store.catalogPath(type);
     const indexPath = this.store.indexPath();
     const romDirectory = this.store.gameDirectory(type, 'rom', id);
     const coverDirectory = this.store.gameDirectory(type, 'cover', id);
-    await prepareRepository(this.config, [
-      this.toRelative(catalogPath),
-      this.toRelative(indexPath),
-      this.toRelative(romDirectory),
-      this.toRelative(coverDirectory),
+    await this.prepareRepositories([
+      {
+        repository: typeRepository,
+        paths: [
+          this.toRelative(typeRepository, catalogPath),
+          this.toRelative(typeRepository, romDirectory),
+          this.toRelative(typeRepository, coverDirectory),
+        ],
+      },
+      {
+        repository: mainRepository,
+        paths: [this.toRelative(mainRepository, indexPath)],
+      },
     ]);
 
     const current = this.store.findGame(id);
@@ -338,7 +390,7 @@ class GamePublisher {
       romDirectory,
       coverDirectory,
     ]);
-    let committed = false;
+    let pushedAny = false;
 
     try {
       const catalog = current.catalog;
@@ -349,27 +401,54 @@ class GamePublisher {
       fs.rmSync(romDirectory, { recursive: true, force: true });
       fs.rmSync(coverDirectory, { recursive: true, force: true });
 
-      const commitResult = await commitAndPush(
-        this.config,
-        [
-          this.toRelative(catalogPath),
-          this.toRelative(indexPath),
-          this.toRelative(romDirectory),
-          this.toRelative(coverDirectory),
-        ],
-        `game: delete ${type} ${current.game.name}`,
-      );
-      committed = true;
+      const typeCommitPaths = [
+        this.toRelative(typeRepository, catalogPath),
+        this.toRelative(typeRepository, romDirectory),
+        this.toRelative(typeRepository, coverDirectory),
+      ];
+      const indexCommitPaths = [this.toRelative(mainRepository, indexPath)];
+      const commits = {};
+      let primaryCommit;
+
+      if (typeRepository.id === mainRepository.id) {
+        const result = await commitAndPush(
+          typeRepository,
+          [...typeCommitPaths, ...indexCommitPaths],
+          `game: delete ${type} ${current.game.name}`,
+        );
+        primaryCommit = result.commit;
+        commits[typeRepository.id] = result.commit;
+        pushedAny = true;
+      } else {
+        const typeResult = await commitAndPush(
+          typeRepository,
+          typeCommitPaths,
+          `game: delete ${type} ${current.game.name}`,
+        );
+        commits[typeRepository.id] = typeResult.commit;
+        pushedAny = true;
+        const indexResult = await commitAndPush(
+          mainRepository,
+          indexCommitPaths,
+          `catalog: refresh index after delete ${type} ${current.game.name}`,
+        );
+        commits[mainRepository.id] = indexResult.commit;
+        primaryCommit = indexResult.commit;
+      }
+
       transaction.cleanup();
       return {
         ok: true,
         deleted: current.game,
-        commit: commitResult.commit,
+        commit: primaryCommit,
+        commits,
+        repository: typeRepository.id,
         pushed: true,
       };
     } catch (error) {
-      if (!committed && !error.pushFailed) transaction.rollback();
-      if (error.pushFailed) transaction.cleanup();
+      if (!pushedAny && !error.pushFailed) transaction.rollback();
+      else transaction.cleanup();
+      if (!error.repository) error.repository = typeRepository.id;
       throw error;
     }
   }
@@ -382,8 +461,21 @@ class GamePublisher {
     throw new Error('无法生成唯一游戏 ID');
   }
 
-  toRelative(absolutePath) {
-    return path.relative(this.config.repositoryRoot, absolutePath);
+  async prepareRepositories(requests) {
+    const byRepository = new Map();
+    for (const request of requests) {
+      const current = byRepository.get(request.repository.id) || [];
+      current.push(...request.paths);
+      byRepository.set(request.repository.id, current);
+    }
+    for (const [repositoryId, paths] of byRepository) {
+      const repository = this.store.repositories[repositoryId];
+      await prepareRepository(repository, [...new Set(paths)]);
+    }
+  }
+
+  toRelative(repository, absolutePath) {
+    return path.relative(repository.root, absolutePath);
   }
 
   createTransaction(paths) {

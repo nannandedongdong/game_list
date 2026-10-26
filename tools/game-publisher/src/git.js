@@ -4,13 +4,17 @@ const { execFile } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+function repositoryRoot(config) {
+  return path.resolve(config.repositoryRoot || config.root);
+}
+
 function runGit(config, args, options = {}) {
   return new Promise((resolve, reject) => {
     execFile(
       'git',
       args,
       {
-        cwd: config.repositoryRoot,
+        cwd: repositoryRoot(config),
         env: process.env,
         maxBuffer: 10 * 1024 * 1024,
       },
@@ -39,7 +43,9 @@ async function commandStatus(config, args) {
 
 function gitError(prefix, error) {
   const detail = error.stderr || error.stdout || error.message;
-  return new Error(`${prefix}: ${detail}`);
+  const result = new Error(`${prefix}: ${detail}`);
+  result.repository = error.repository || null;
+  return result;
 }
 
 async function prepareRepository(config, relativePaths = []) {
@@ -57,7 +63,7 @@ async function prepareRepository(config, relativePaths = []) {
   try {
     await runGit(config, ['fetch', '--prune', config.remote, config.branch]);
   } catch (error) {
-    throw gitError('无法获取远端最新提交', error);
+    throw gitError(`无法获取仓库 ${config.id || ''} 的远端最新提交`, error);
   }
 
   const counts = await runGit(config, [
@@ -77,7 +83,7 @@ async function prepareRepository(config, relativePaths = []) {
         config.branch,
       ]);
     } catch (error) {
-      throw gitError('远端已有新提交，自动同步失败', error);
+      throw gitError(`仓库 ${config.id || ''} 远端已有新提交，自动同步失败`, error);
     }
   }
 
@@ -131,8 +137,12 @@ async function commitAndPush(config, relativePaths, message) {
       `HEAD:${config.branch}`,
     ]);
   } catch (error) {
-    const pushError = gitError('本地提交已创建，但推送到 GitHub 失败', error);
+    const pushError = gitError(
+      `仓库 ${config.id || ''} 的本地提交已创建，但推送到 GitHub 失败`,
+      error,
+    );
     pushError.commit = commit;
+    pushError.repository = config.id || null;
     pushError.pushFailed = true;
     throw pushError;
   }
@@ -143,7 +153,7 @@ async function commitAndPush(config, relativePaths, message) {
 async function filterCommitPaths(config, relativePaths) {
   const result = [];
   for (const relativePath of [...new Set(relativePaths)]) {
-    const absolutePath = path.resolve(config.repositoryRoot, relativePath);
+    const absolutePath = path.resolve(repositoryRoot(config), relativePath);
     if (fs.existsSync(absolutePath)) {
       result.push(relativePath);
       continue;
@@ -169,7 +179,7 @@ async function pushCurrent(config) {
     ]);
     return { pushed: true };
   } catch (error) {
-    throw gitError('推送失败', error);
+    throw gitError(`仓库 ${config.id || ''} 推送失败`, error);
   }
 }
 

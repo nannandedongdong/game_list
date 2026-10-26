@@ -2,7 +2,7 @@
 
 > 文档版本：`2026-10-26`
 >
-> 数据协议：`schema_version = 1`
+> 数据协议：`schema_version = 2`
 >
 > 适用客户端：Android / iOS
 
@@ -10,11 +10,13 @@
 
 ## 1. 基本地址
 
-公开文件根目录：
+总库公开文件根目录：
 
 ```text
 https://raw.githubusercontent.com/nannandedongdong/game_list/main/public
 ```
+
+分类表、海报和 ROM 可以位于其他仓库；客户端应使用 `index.json` 中提供的完整分类 URL，不要假设所有文件都在总库。
 
 入口索引（优先）：
 
@@ -40,22 +42,23 @@ https://github.com/nannandedongdong/game_list
 
 ```text
 GET catalog/index.json
-    → 获取每种游戏类型对应的文件名和毫秒级时间版本
+    → 读取 catalogs[类型].url、fallback_url、updated_at 和 repository_url
     → 与本地缓存的分类表 updated_at 比较
     → 版本一致：直接使用本地分类表，不发起分类表请求
     → 版本不同：只 GET 发生变化的分类表
     → 展示 games 数组
     → 用户点击获取
-    → 下载 rom_path 指向的 ROM
+    → 相对于分类表 URL 解析 rom_path
     → 用 file_size 和 sha256 校验文件
 ```
 
-版本判断规则：
+版本和仓库规则：
 
-- `index.json.list_versions[类型]` 是该分类当前版本；
+- `index.json.catalogs[类型].updated_at` 是该分类当前版本；
 - 分类 JSON 顶层 `updated_at` 是同一版本；
 - 两个字符串完全相等时，客户端不得重新下载该分类表；
-- 新增、更新、删除游戏成功后，发布端在同一次 Git commit 中同时更新分类表和索引。
+- 分类可以位于不同 GitHub 仓库，必须使用索引中的完整 `url`，不能自行拼接总库地址；
+- `repositories` 和 `catalogs[类型].repository_url` 可用于界面展示分类所属仓库。
 
 当前类型：
 
@@ -78,19 +81,37 @@ public/catalog/index.json
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "updated_at": "2026-10-26T04:05:06.789Z",
-  "lists": {
-    "GBA": "gba.json",
-    "MD": "md.json",
-    "CPS1": "cps1.json",
-    "FC": "fc.json"
+  "repositories": {
+    "gamelist": {
+      "url": "https://github.com/nannandedongdong/game_list",
+      "branch": "main",
+      "public_base_url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public",
+      "fallback_public_base_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public"
+    },
+    "gba-games": {
+      "url": "https://github.com/example/gba-games",
+      "branch": "main",
+      "public_base_url": "https://raw.githubusercontent.com/example/gba-games/main/public",
+      "fallback_public_base_url": null
+    }
   },
-  "list_versions": {
-    "GBA": "2026-10-26T01:02:03.456Z",
-    "MD": "2026-10-26T02:03:04.567Z",
-    "CPS1": "2026-10-26T03:04:05.678Z",
-    "FC": "2026-10-26T04:05:06.789Z"
+  "catalogs": {
+    "GBA": {
+      "repository": "gba-games",
+      "repository_url": "https://github.com/example/gba-games",
+      "url": "https://raw.githubusercontent.com/example/gba-games/main/public/catalog/gba.json",
+      "fallback_url": null,
+      "updated_at": "2026-10-26T01:02:03.456Z"
+    },
+    "FC": {
+      "repository": "gamelist",
+      "repository_url": "https://github.com/nannandedongdong/game_list",
+      "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/fc.json",
+      "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/fc.json",
+      "updated_at": "2026-10-26T04:05:06.789Z"
+    }
   }
 }
 ```
@@ -99,37 +120,32 @@ public/catalog/index.json
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `schema_version` | number | 数据结构版本，当前固定为 `1` |
-| `updated_at` | string/null | 所有分类中最新的更新时间，ISO 8601，毫秒精度 |
-| `lists` | object | 游戏类型到列表文件名的映射 |
-| `list_versions` | object | 游戏类型到该分类 `updated_at` 时间版本的映射 |
+| `schema_version` | number | 数据结构版本，当前固定为 `2` |
+| `updated_at` | string/null | 所有分类中最新的更新时间，ISO 8601 毫秒精度 |
+| `repositories` | object | 仓库 ID 到仓库地址和公开根地址的映射 |
+| `catalogs` | object | 游戏类型到分类 URL、所属仓库和版本时间的映射 |
 
-列表文件与 `index.json` 位于同一目录，所以客户端应相对于 `index.json` 的地址解析列表文件名。
+`catalogs[类型]` 字段：
 
-例如：
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `repository` | string | 仓库 ID |
+| `repository_url` | string | GitHub 仓库地址 |
+| `url` | string | 分类 JSON 的完整主地址 |
+| `fallback_url` | string/null | 分类 JSON 的备用完整地址 |
+| `updated_at` | string/null | 分类版本号，必须等于分类表顶层 `updated_at` |
 
-```text
-https://.../public/catalog/index.json
-+ gba.json
-= https://.../public/catalog/gba.json
-```
+分类可以位于任意已配置仓库。客户端必须直接使用 `url`，不能假设分类表和 `index.json` 位于同一仓库或同一目录。
 
 ## 4. 类型游戏列表
 
-地址示例：
-
-```text
-public/catalog/gba.json
-public/catalog/md.json
-public/catalog/cps1.json
-public/catalog/fc.json
-```
+分类地址由 `index.json.catalogs[类型].url` 提供，可以是总库，也可以是独立仓库。
 
 响应示例：
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "game_type": "GBA",
   "updated_at": "2026-10-22T10:30:02.824Z",
   "games": [
@@ -153,7 +169,7 @@ public/catalog/fc.json
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| `schema_version` | number | 当前固定为 `1` |
+| `schema_version` | number | 当前固定为 `2` |
 | `game_type` | string | 当前列表的游戏类型 |
 | `updated_at` | string/null | 列表最后更新时间，同时作为该分类版本号；ISO 8601 毫秒精度，空列表时可能为 `null` |
 | `games` | array | 游戏数组；没有游戏时为空数组 |
@@ -257,36 +273,31 @@ sf2ce.zip
 
 ## 8. 主地址与备用地址
 
-同一个相对路径可以在两个域名下访问。
+每个仓库分别配置主公开地址和可选备用地址，并写入 `index.json.repositories`。每个分类在 `index.json.catalogs[类型]` 中提供：
 
-GitHub Raw：
+- `url`：分类 JSON 主地址；
+- `fallback_url`：分类 JSON 备用地址；
+- `repository_url`：分类所属 GitHub 仓库。
 
-```text
-https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/<path>
-```
+示例：
 
-GitHub 代理：
-
-```text
-https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/<path>
-```
-
-例如：
-
-```text
-Raw:
-https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json
-
-GitHub 代理:
-https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/gba.json
+```json
+"GBA": {
+  "repository": "gba-games",
+  "repository_url": "https://github.com/example/gba-games",
+  "url": "https://raw.githubusercontent.com/example/gba-games/main/public/catalog/gba.json",
+  "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/example/gba-games/main/public/catalog/gba.json",
+  "updated_at": "2026-10-26T01:02:03.456Z"
+}
 ```
 
 建议客户端：
 
-1. 优先请求 Raw；
-2. 连接超时、DNS 失败或 HTTP 5xx 时切换 `gh-proxy.com`；
-3. 下载 ROM 时也按同样策略切换备用域名；
-4. 主流程不依赖 GitHub API。
+1. 优先请求 `url`；
+2. 连接超时、DNS 失败或 HTTP 5xx 时切换 `fallback_url`；
+3. 下载 ROM 和海报时相对于实际分类 URL 解析 `rom_path` 和 `cover_path`；
+4. 不通过字符串替换推导备用地址；
+5. 主流程不依赖 GitHub API。
 
 ## 9. 缓存与刷新
 
@@ -296,8 +307,8 @@ https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_lis
 
 - 启动或进入在线游戏页时只请求一次较小的 `index.json`；
 - 本地缓存每张分类表的原文和顶层 `updated_at`；
-- `list_versions[类型] == 本地分类表.updated_at` 时直接使用缓存，不请求分类表；
-- 版本不一致时只请求对应分类表；
+- `catalogs[类型].updated_at == 本地分类表.updated_at` 时直接使用缓存，不请求分类表；
+- 版本不一致时只请求 `catalogs[类型].url` 指向的分类表；
 - 如果分类表与索引版本暂时不一致，可使用 `?v=<updated_at>` 绕过中间缓存后重试；
 - 用户下拉刷新时重新检查索引，但版本相同的分类表仍不下载；
 - 海报加载失败时显示本地默认封面；
@@ -320,8 +331,23 @@ https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_lis
 data class GameIndex(
     @SerializedName("schema_version") val schemaVersion: Int,
     @SerializedName("updated_at") val updatedAt: String?,
-    val lists: Map<String, String>,
-    @SerializedName("list_versions") val listVersions: Map<String, String?>,
+    val repositories: Map<String, GameRepository>,
+    val catalogs: Map<String, GameCatalogInfo>,
+)
+
+data class GameRepository(
+    val url: String,
+    val branch: String,
+    @SerializedName("public_base_url") val publicBaseUrl: String,
+    @SerializedName("fallback_public_base_url") val fallbackPublicBaseUrl: String?,
+)
+
+data class GameCatalogInfo(
+    val repository: String,
+    @SerializedName("repository_url") val repositoryUrl: String,
+    val url: String,
+    @SerializedName("fallback_url") val fallbackUrl: String?,
+    @SerializedName("updated_at") val updatedAt: String?,
 )
 
 data class GameCatalog(
@@ -350,17 +376,20 @@ data class GameItem(
 - 公开文件全部可直接访问，没有鉴权。
 - 游戏包最大 10MB（可直接上传 ZIP）。
 - 海报为可选文件，支持 JPG、PNG、WebP。
-- 当前数据格式版本为 `1`。
-- 新客户端应优先使用 `name_en`，旧客户端忽略该字段仍可使用 `name`。
-- `index.json.lists` 的原有字符串结构保持不变；新增的 `updated_at` 和 `list_versions` 是向后兼容字段。
-- 旧客户端可以继续请求所有分类表；新客户端应按 `list_versions` 跳过未变化分类。
-- 新增字段时应保证旧客户端可以忽略未知字段。
+- 当前数据格式版本为 `2`。
+- 分类表可以位于不同 GitHub 仓库，客户端必须使用索引中的完整 URL。
+- `catalogs[类型].updated_at` 必须与分类表顶层字段一致。
+- 客户端应按分类版本跳过未变化列表。
+- 仓库地址变化时，即使分类版本未变，也应刷新分类 URL 解析结果。
 - 下载完成后必须按整个已发布文件校验 `file_size` 和 `sha256`。
 
 ## 14. 变更记录
 
 ### 2026-10-26
 
+- 索引升级为 schema 2，支持总库和分类独立仓库。
+- 索引使用 `repositories` 和 `catalogs`，分类 URL 改为完整地址。
+- 分类记录所属仓库、仓库地址、主分类 URL、备用 URL 和毫秒级版本。
 - 索引增加全局 `updated_at` 和分类级 `list_versions`。
 - 分类版本使用分类表顶层毫秒级 `updated_at`，不再额外生成另一套版本号。
 - 客户端按索引版本与本地分类版本比较，只下载发生变化的分类表。

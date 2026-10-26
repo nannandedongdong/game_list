@@ -13,25 +13,39 @@ function createApp(config, store, publisher) {
   app.disable('x-powered-by');
 
   app.get('/api/health', async (req, res) => {
-    const repository = await repositoryStatus(config);
+    const repositories = Object.fromEntries(
+      await Promise.all(
+        Object.values(config.repositories).map(async (repository) => [
+          repository.id,
+          await repositoryStatus(repository),
+        ]),
+      ),
+    );
     res.json({
       ok: true,
       service: 'game-list-publisher',
-      repository,
+      main_repository: config.mainRepositoryId,
+      repositories,
     });
   });
 
   app.get('/api/config', (req, res) => {
     res.json({
       ok: true,
-      repository: {
-        url: config.githubUrl,
-        remote: config.remote,
-        branch: config.branch,
-        contentRoot: config.contentRoot,
-      },
-      publicBaseUrl: config.publicBaseUrl,
-      fallbackPublicBaseUrl: config.fallbackPublicBaseUrl,
+      main_repository: config.mainRepositoryId,
+      repositories: Object.fromEntries(
+        Object.entries(config.repositories).map(([id, repository]) => [
+          id,
+          {
+            url: repository.githubUrl,
+            remote: repository.remote,
+            branch: repository.branch,
+            content_root: repository.contentRoot,
+            public_base_url: repository.publicBaseUrl,
+            fallback_public_base_url: repository.fallbackPublicBaseUrl || null,
+          },
+        ]),
+      ),
       limits: {
         rom_bytes: config.romBytes,
         cover_bytes: config.coverBytes,
@@ -39,13 +53,18 @@ function createApp(config, store, publisher) {
         zip_max_uncompressed_bytes: config.zipMaxUncompressedBytes,
       },
       game_types: Object.fromEntries(
-        Object.entries(config.gameTypes).map(([type, value]) => [
-          type,
-          {
-            extensions: value.extensions,
-            upload_enabled: value.uploadEnabled !== false,
-          },
-        ]),
+        Object.entries(config.gameTypes).map(([type, value]) => {
+          const repository = config.repositories[value.repository];
+          return [
+            type,
+            {
+              extensions: value.extensions,
+              upload_enabled: value.uploadEnabled !== false,
+              repository: value.repository,
+              repository_url: repository.githubUrl,
+            },
+          ];
+        }),
       ),
     });
   });
@@ -57,8 +76,8 @@ function createApp(config, store, publisher) {
         ...game,
         game_type: type,
         local: {
-          cover: store.localAssetUrl(game.cover_path),
-          rom: store.localAssetUrl(game.rom_path),
+          cover: store.localAssetUrl(type, game.cover_path),
+          rom: store.localAssetUrl(type, game.rom_path),
         },
         public: store.publicGameUrls(type, game),
       })),
@@ -66,7 +85,23 @@ function createApp(config, store, publisher) {
     const catalogVersions = Object.fromEntries(
       catalogs.map(({ type, catalog }) => [type, catalog.updated_at || null]),
     );
-    res.json({ ok: true, games, catalog_versions: catalogVersions });
+    const catalogRepositories = Object.fromEntries(
+      catalogs.map(({ type, repository }) => [
+        type,
+        {
+          repository: repository.id,
+          url: repository.githubUrl,
+          public_base_url: repository.publicBaseUrl,
+          fallback_public_base_url: repository.fallbackPublicBaseUrl || null,
+        },
+      ]),
+    );
+    res.json({
+      ok: true,
+      games,
+      catalog_versions: catalogVersions,
+      catalog_repositories: catalogRepositories,
+    });
   });
 
   app.post('/api/games', async (req, res, next) => {
@@ -90,14 +125,24 @@ function createApp(config, store, publisher) {
 
   app.post('/api/sync', async (req, res, next) => {
     try {
-      const result = await pushCurrent(config);
-      res.json({ ok: true, ...result });
+      const repositoryId = String(req.query.repository || config.mainRepositoryId);
+      const repository = config.repositories[repositoryId];
+      if (!repository) {
+        throw httpError(400, 'UNKNOWN_REPOSITORY', `仓库不存在: ${repositoryId}`);
+      }
+      const result = await pushCurrent(repository);
+      res.json({ ok: true, repository: repositoryId, ...result });
     } catch (error) {
       next(error);
     }
   });
 
-  app.use('/media', express.static(store.contentRoot));
+  for (const repository of Object.values(config.repositories)) {
+    app.use(
+      `/media/${repository.id}`,
+      express.static(repository.contentRootPath),
+    );
+  }
   app.use(express.static(path.join(__dirname, '..', 'web')));
 
   app.use((error, req, res, next) => {
@@ -116,6 +161,7 @@ function createApp(config, store, publisher) {
       code: error.code || (error.pushFailed ? 'PUSH_FAILED' : 'INTERNAL_ERROR'),
       error: message,
       commit: error.commit || null,
+      repository: error.repository || null,
     });
   });
 
@@ -206,8 +252,14 @@ function startServer() {
   const app = createApp(config, store, publisher);
   const server = app.listen(config.port, config.host, () => {
     console.log(`Game publisher: http://${config.host}:${config.port}`);
-    console.log(`Repository: ${config.githubUrl || config.repositoryRoot}`);
-    console.log(`Branch: ${config.branch}`);
+    console.log(
+      `Main repository: ${config.mainRepositoryId} (${config.mainRepository.githubUrl || config.mainRepository.root})`,
+    );
+    for (const repository of Object.values(config.repositories)) {
+      console.log(
+        `  ${repository.id}: ${repository.githubUrl} [${repository.branch}]`,
+      );
+    }
   });
   return { app, server, config, store, publisher };
 }
