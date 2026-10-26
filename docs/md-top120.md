@@ -1,6 +1,6 @@
-# MD 动作游戏 120 款
+# MD 动作游戏 121 款
 
-筛选规则：排除 China、Hack、魔改、训练版、Bad Dump、Proto/Beta/Unl；按经典动作游戏知名度综合排序。
+筛选规则：排除 China、Hack、魔改、训练版、Bad Dump、Proto/Beta/Unl。前 120 款为综合排序，121 款为用户指定追加的《空牙》。
 
 | # | 中文名 | English | 类型 | 地区 | ID |
 |---:|---|---|---|---|---|
@@ -124,3 +124,4 @@
 | 118 | 元素支配者 | Elemental Master | 射击 | Japan | `md-20261026-512c5485` |
 | 119 | 钢铁帝国 | Steel Empire | 射击 | Europe | `md-20261026-e98f3eb6` |
 | 120 | 校园女战士3 | Valis III | 动作/平台 | USA | `md-20261026-1e2d0d91` |
+| 121 | 空牙 | Vapor Trail | 射击 | Japan | `md-20261026-323354e3` |

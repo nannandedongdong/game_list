@@ -1,6 +1,4 @@
-# MD 动作游戏 Top 120（初表）
-
-筛选规则：排除 China、Hack、魔改、训练版、Bad Dump、Proto/Beta/Unl；优先 World / USA / Europe / Japan 正式版。排名按系列影响力和经典动作游戏知名度综合排序，不是媒体评分榜。
+# MD 动作游戏 121 款（初表）
 
 | # | 中文名 | English | 类型 | 地区 | 源 ROM |
 |---:|---|---|---|---|---|
@@ -124,12 +122,4 @@
 | 118 | 元素支配者 | Elemental Master | 射击 | Japan | `元素支配者 (Japan).zip` |
 | 119 | 钢铁帝国 | Steel Empire | 射击 | Europe | `钢铁帝国 (Europe).zip` |
 | 120 | 校园女战士3 | Valis III | 动作/平台 | USA | `校园女战士 3 (USA).zip` |
-
-## 暂未入选的高知名度作品
-
-- Contra: Hard Corps：素材库仅有 China / Hack 版本。
-- Castlevania 相关：Bloodlines 已入选；其他仅有 Hack 或不同作品。
-- Vectorman 2：素材库仅发现 Hack 版。
-- Dynamite Headdy：未在素材库中找到正式版。
-- Zero Wing：素材库仅有 China 版。
-- Gradius：素材库中的“宇宙巡航机”实际是 Gaiares，不能按文件名误录。
+| 121 | 空牙 | Vapor Trail | 射击 | Japan | `空牙 (Japan).zip` |

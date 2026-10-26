@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "game_type": "MD",
-  "updated_at": "2026-10-26T06:35:59.784Z",
+  "updated_at": "2026-10-26T06:47:25.434Z",
   "games": [
     {
       "id": "md-20261026-a27e1aac",
@@ -1442,6 +1442,18 @@
       "sha256": "bf8f2e33064a3884e4124505d0fc38d956614db155ea77deabbf0d7eb0604703",
       "revision": 1,
       "updated_at": "2026-10-26T06:35:59.784Z"
+    },
+    {
+      "id": "md-20261026-323354e3",
+      "name": "空牙",
+      "name_en": "Vapor Trail",
+      "cover_path": "../covers/md/md-20261026-323354e3/cover.webp",
+      "rom_path": "../roms/md/md-20261026-323354e3/game.zip",
+      "file_name": "md20261026323354e3.zip",
+      "file_size": 432227,
+      "sha256": "807834649ff06dd6418027ee3e27a84c76b37dba9696f6b8c9b91ae72970f170",
+      "revision": 1,
+      "updated_at": "2026-10-26T06:46:53.046Z"
     }
   ]
 }

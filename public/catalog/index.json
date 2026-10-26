@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-10-26T06:35:59.784Z",
+  "updated_at": "2026-10-26T06:47:25.434Z",
   "repositories": {
     "gamelist": {
       "url": "https://github.com/nannandedongdong/game_list",
@@ -22,7 +22,7 @@
       "repository_url": "https://github.com/nannandedongdong/game_list",
       "url": "https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/md.json",
       "fallback_url": "https://gh-proxy.com/https://raw.githubusercontent.com/nannandedongdong/game_list/main/public/catalog/md.json",
-      "updated_at": "2026-10-26T06:35:59.784Z"
+      "updated_at": "2026-10-26T06:47:25.434Z"
     },
     "CPS1": {
       "repository": "gamelist",

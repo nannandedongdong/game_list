@@ -1,4 +1,4 @@
-﻿rank,id,name,name_en,genre,region,source,file_name,file_size,sha256,cover_file
+rank,id,name,name_en,genre,region,source,file_name,file_size,sha256,cover_file
 1,md-20261026-a27e1aac,索尼克2,Sonic the Hedgehog 2,动作/平台,World,索尼克 2 (World) (Rev A).zip,md20261026a27e1aac.zip,750187,1eed42704bee1463d636ff00c787d7b1acf5c3e1348518b6fd10c8812c6c74f6,Sonic The Hedgehog 2 (World).png
 2,md-20261026-52eaf376,怒之铁拳2,Streets of Rage 2,清版/格斗动作,USA,怒之铁拳 2 (USA).zip,md2026102652eaf376.zip,1034957,5d8beeed7ff8af6aa1d3d94628ac98018ce64233072214b4f7d4114af5678a6b,Streets of Rage 2 (USA).png
 3,md-20261026-037b2933,火枪英雄,Gunstar Heroes,跑打/动作射击,Europe,火枪英雄 (Europe).zip,md20261026037b2933.zip,702871,dbfdecd9de5d0a4e696e063d3e6a8412e7bf988153afd3692a9e5748bf74ba88,Gunstar Heroes (Europe).png
@@ -119,3 +119,4 @@
 118,md-20261026-512c5485,元素支配者,Elemental Master,射击,Japan,元素支配者 (Japan).zip,md20261026512c5485.zip,414789,9fc8ac8e58c0fea70e88c46df69e7cf005b1b7b59fba1cc977f1f063b711a83d,Elemental Master (Japan).png
 119,md-20261026-e98f3eb6,钢铁帝国,Steel Empire,射击,Europe,钢铁帝国 (Europe).zip,md20261026e98f3eb6.zip,473035,58fa0851fc626e2c2299fd12b48f89c933f1e583d9f808b3db0ec11d9162ba80,Steel Empire (USA).png
 120,md-20261026-1e2d0d91,校园女战士3,Valis III,动作/平台,USA,校园女战士 3 (USA).zip,md202610261e2d0d91.zip,782274,bf8f2e33064a3884e4124505d0fc38d956614db155ea77deabbf0d7eb0604703,Valis III (USA).png
+121,md-20261026-323354e3,空牙,Vapor Trail,射击,Japan,空牙 (Japan).zip,md20261026323354e3.zip,432227,807834649ff06dd6418027ee3e27a84c76b37dba9696f6b8c9b91ae72970f170,Kuuga - Operation Code 'Vapor Trail' (Japan).png
