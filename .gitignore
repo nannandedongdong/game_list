@@ -3,3 +3,4 @@ tools/game-publisher/.env
 tools/game-publisher/config.local.json
 .DS_Store
 *.log
+.publisher/

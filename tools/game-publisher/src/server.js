@@ -7,10 +7,31 @@ const { loadConfig } = require('./config');
 const { CatalogStore } = require('./catalog');
 const { GamePublisher } = require('./publisher');
 const { pushCurrent, repositoryStatus } = require('./git');
+const { RepositoryMigrationManager } = require('./repository-migration');
 
-function createApp(config, store, publisher) {
+function createApp(initialConfig, initialStore, initialPublisher) {
+  let config = initialConfig;
+  let store = initialStore;
+  let publisher = initialPublisher;
+  const runtime = {
+    get config() { return config; },
+    get store() { return store; },
+    get publisher() { return publisher; },
+  };
+  runtime.reload = () => {
+    const nextConfig = loadConfig();
+    const nextStore = new CatalogStore(nextConfig);
+    nextStore.ensureStructure();
+    config = nextConfig;
+    store = nextStore;
+    publisher = new GamePublisher(config, store);
+  };
+  const migrationManager = new RepositoryMigrationManager(runtime);
+  runtime.migrationManager = migrationManager;
+
   const app = express();
   app.disable('x-powered-by');
+  app.use(express.json({ limit: '64kb' }));
 
   app.get('/api/health', async (req, res) => {
     const repositories = Object.fromEntries(
@@ -104,7 +125,79 @@ function createApp(config, store, publisher) {
     });
   });
 
+  app.get('/api/repositories', (req, res) => {
+    res.json({ ok: true, ...migrationManager.overview() });
+  });
+
+  app.get('/api/repositories/migrations/latest', (req, res) => {
+    res.json({ ok: true, job: migrationManager.latestJob() });
+  });
+
+  app.get('/api/repositories/migrations/:id', (req, res) => {
+    try {
+      res.json({ ok: true, job: migrationManager.getJob(req.params.id) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/repositories/migrations/preflight', async (req, res, next) => {
+    if (migrationManager.hasPendingJob()) {
+      next(
+        httpError(
+          409,
+          'MIGRATION_IN_PROGRESS',
+          '已有迁移任务正在执行或等待处理，请先完成当前任务',
+        ),
+      );
+      return;
+    }
+    try {
+      const result = await migrationManager.preflight(req.body || {});
+      res.json({ ok: true, preview: result });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/repositories/migrations', async (req, res, next) => {
+    try {
+      const job = await migrationManager.start(req.body || {});
+      res.status(202).json({ ok: true, job });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/repositories/migrations/:id/retry', async (req, res, next) => {
+    try {
+      const job = migrationManager.retry(req.params.id);
+      res.json({ ok: true, job });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/repositories/migrations/:id/cancel', async (req, res, next) => {
+    try {
+      const job = migrationManager.cancel(req.params.id);
+      res.json({ ok: true, job });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.post('/api/games', async (req, res, next) => {
+    if (migrationManager.hasPendingJob()) {
+      next(
+        httpError(
+          409,
+          'MIGRATION_IN_PROGRESS',
+          '仓库迁移期间不能上传或更新游戏',
+        ),
+      );
+      return;
+    }
     try {
       const payload = await parseMultipart(req, Math.max(config.romBytes, config.coverBytes));
       const result = await publisher.saveGame(payload);
@@ -115,6 +208,16 @@ function createApp(config, store, publisher) {
   });
 
   app.delete('/api/games/:id', async (req, res, next) => {
+    if (migrationManager.hasPendingJob()) {
+      next(
+        httpError(
+          409,
+          'MIGRATION_IN_PROGRESS',
+          '仓库迁移期间不能删除游戏',
+        ),
+      );
+      return;
+    }
     try {
       const result = await publisher.deleteGame(req.params.id);
       res.json(result);
@@ -137,12 +240,14 @@ function createApp(config, store, publisher) {
     }
   });
 
-  for (const repository of Object.values(config.repositories)) {
-    app.use(
-      `/media/${repository.id}`,
-      express.static(repository.contentRootPath),
-    );
-  }
+  app.use('/media/:repositoryId', (req, res, next) => {
+    const repository = config.repositories[req.params.repositoryId];
+    if (!repository) {
+      res.status(404).end();
+      return;
+    }
+    express.static(repository.contentRootPath)(req, res, next);
+  });
   app.use(express.static(path.join(__dirname, '..', 'web')));
 
   app.use((error, req, res, next) => {

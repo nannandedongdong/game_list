@@ -44,6 +44,12 @@ npm start
 
 打开 `http://127.0.0.1:4173`，可上传、更新、删除游戏；同仓库发布创建一个 Git commit，跨仓库发布分别推送分类仓库和总库索引。
 
+分类仓库迁移页面：
+
+```text
+http://127.0.0.1:4173/repositories.html
+```
+
 后台说明：[docs/publisher-server.md](docs/publisher-server.md)
 
 ## 配置

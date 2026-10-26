@@ -160,7 +160,58 @@ GAME_PUBLISHER_CONFIG=/path/to/publisher.config.json \
 npm start
 ```
 
-## 5. 发布规则
+## 5. 分类仓库迁移页面
+
+页面地址：
+
+```text
+http://127.0.0.1:4173/repositories.html
+```
+
+页面用于把单个游戏类型从当前仓库迁移到另一个已经创建的 GitHub 仓库。
+
+当前约束：
+
+- 不自动创建 GitHub 仓库；
+- 不支持合并已有分类数据；
+- 一次只迁移一个游戏类型；
+- 目标仓库中不能已有该类型的 catalog、covers 或 roms 数据；
+- 迁移会批量复制分类 JSON、海报和 ROM；
+- 新仓库验证成功后才更新总库索引；
+- 索引切换成功后才清理旧仓库中的该分类数据。
+
+页面流程：
+
+1. 选择分类；
+2. 输入新 GitHub 仓库地址和分支；
+3. 自动 clone 或检查本地仓库；
+4. 执行环境预检；
+5. 展示文件数量、大小和迁移计划；
+6. 批量复制并校验文件；
+7. 提交并 push 分类仓库；
+8. 更新总库 `index.json` 和 `publisher.config.json`；
+9. 提交并 push 总库；
+10. 删除旧仓库中的分类数据；
+11. 显示完成结果。
+
+迁移任务状态和日志保存在：
+
+```text
+.publisher/migrations/
+```
+
+该目录已加入 `.gitignore`，不会提交到游戏仓库。
+
+失败处理：
+
+- 预检失败时可在当前页面修改仓库地址后重新检查；
+- 复制或 push 失败时任务进入“需要处理”；
+- 旧数据和线上索引保持安全状态；
+- 点击“从失败步骤继续”会复用已经完成的阶段；
+- 新仓库尚未 push 时，可以放弃任务、清理目标仓库中的本次半成品并重新填写地址；
+- 服务重启后仍可读取历史任务状态。
+
+## 6. 发布规则
 
 ### 新增游戏
 
@@ -238,7 +289,7 @@ public/catalog/index.json
 "cover_path": null
 ```
 
-## 6. 校验规则
+## 7. 校验规则
 
 上传前会检查：
 
@@ -257,7 +308,7 @@ public/catalog/index.json
 - SHA-256 与已有 ROM 不重复；
 - 发布时间文件不能已有未提交改动。
 
-## 7. Git 行为
+## 8. Git 行为
 
 每次发布：
 
@@ -277,7 +328,7 @@ git push origin HEAD:main
 
 如果 commit 成功但 push 失败，文件仍保存在本地，界面会提示“重试推送”。
 
-## 8. 本地 API
+## 9. 本地 API
 
 后台自身的 API 只供本机网页调用。
 
@@ -289,6 +340,12 @@ git push origin HEAD:main
 | `POST /api/games` | multipart 上传或更新游戏 |
 | `DELETE /api/games/:id` | 删除游戏 |
 | `POST /api/sync?repository=<id>` | 重试指定仓库的 push |
+| `GET /api/repositories` | 仓库、分类路由和待处理迁移任务 |
+| `POST /api/repositories/migrations/preflight` | 迁移前检查和文件统计 |
+| `POST /api/repositories/migrations` | 启动单分类迁移任务 |
+| `GET /api/repositories/migrations/:id` | 查询迁移进度和日志 |
+| `POST /api/repositories/migrations/:id/retry` | 从失败步骤继续 |
+| `POST /api/repositories/migrations/:id/cancel` | 放弃尚未 push 到新仓库的失败任务并重新填写 |
 
 `GET /api/games` 返回：
 
@@ -367,7 +424,7 @@ git push origin HEAD:main
 | `DUPLICATE_ROM` | 相同 SHA-256 的游戏包已存在 |
 | `PUSH_FAILED` | 本地 commit 成功，但 push 失败 |
 
-## 9. 测试
+## 10. 测试
 
 ```bash
 cd tools/game-publisher
@@ -386,9 +443,11 @@ npm test
 - 类型 JSON 与索引生成；
 - 同仓库发布和多仓库 URL 生成；
 - 双仓库测试：分类仓库保存 ROM/分类，总库只保存索引；
+- GitHub 仓库地址解析；
+- 仓库迁移页面使用的预检和任务状态接口；
 - 分类资源地址解析。
 
-## 10. 常见问题
+## 11. 常见问题
 
 ### 推送失败
 
@@ -439,7 +498,7 @@ GitHub Raw 可能有缓存。等待片刻，或在请求地址后加 `?v=<update
 
 如果主地址网络不可用，可切换到配置中的 `gh-proxy.com` Raw 代理备用地址。当前仓库超过 jsDelivr 的 50MB 包限制，因此不再使用 jsDelivr。
 
-## 11. 变更记录
+## 12. 变更记录
 
 ### 2026-10-26
 
