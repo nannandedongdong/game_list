@@ -6,10 +6,19 @@
 
 - 入口：`public/catalog/index.json`
 - 类型列表：`public/catalog/{gba,md,cps1,fc}.json`
+- 版本索引：`index.json.list_versions` 保存每个分类最后一次更新时间
 - 海报：`public/covers/`
 - ROM：`public/roms/`
 
 手机端 API 文档：[docs/game-catalog-api.md](docs/game-catalog-api.md)
+
+### 增量更新规则
+
+- 分类表的顶层 `updated_at` 同时是该分类的版本号，使用毫秒精度 ISO 8601 时间。
+- `index.json.list_versions[类型]` 必须与对应分类表的 `updated_at` 完全一致。
+- 客户端启动或刷新时只请求 `index.json`；版本一致的分类表直接使用本地缓存。
+- 只有版本变化的分类才请求对应 JSON，不会重新下载全部类型列表。
+- 新增、更新或删除游戏成功时，分类表和 `index.json` 在同一个 Git commit 中提交。
 
 公开地址：
 

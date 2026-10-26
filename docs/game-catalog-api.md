@@ -1,6 +1,6 @@
 # Game List 公开接口文档
 
-> 文档版本：`2026-10-22`
+> 文档版本：`2026-10-26`
 >
 > 数据协议：`schema_version = 1`
 >
@@ -155,7 +155,7 @@ public/catalog/fc.json
 |---|---|---|
 | `schema_version` | number | 当前固定为 `1` |
 | `game_type` | string | 当前列表的游戏类型 |
-| `updated_at` | string/null | 列表最后更新时间，ISO 8601；空列表时可能为 `null` |
+| `updated_at` | string/null | 列表最后更新时间，同时作为该分类版本号；ISO 8601 毫秒精度，空列表时可能为 `null` |
 | `games` | array | 游戏数组；没有游戏时为空数组 |
 
 ### 游戏字段
@@ -352,6 +352,8 @@ data class GameItem(
 - 海报为可选文件，支持 JPG、PNG、WebP。
 - 当前数据格式版本为 `1`。
 - 新客户端应优先使用 `name_en`，旧客户端忽略该字段仍可使用 `name`。
+- `index.json.lists` 的原有字符串结构保持不变；新增的 `updated_at` 和 `list_versions` 是向后兼容字段。
+- 旧客户端可以继续请求所有分类表；新客户端应按 `list_versions` 跳过未变化分类。
 - 新增字段时应保证旧客户端可以忽略未知字段。
 - 下载完成后必须按整个已发布文件校验 `file_size` 和 `sha256`。
 
