@@ -155,6 +155,7 @@ CPS1 是特例：上传的 ZIP 文件名必须是 MAME 集合短名，例如 `pu
 public/roms/<类型>/<game-id>/game.<扩展名>
 public/covers/<类型>/<game-id>/cover.<扩展名>   # 仅选择海报时
 public/catalog/<类型>.json
+public/catalog/index.json
 ```
 
 ### 更新游戏
@@ -243,10 +244,27 @@ git push origin HEAD:main
 |---|---|
 | `GET /api/health` | 服务与 Git 状态 |
 | `GET /api/config` | 当前配置和限制 |
-| `GET /api/games` | 读取本地公开 JSON |
+| `GET /api/games` | 读取本地游戏数据和各分类 `updated_at` 版本 |
 | `POST /api/games` | multipart 上传或更新游戏 |
 | `DELETE /api/games/:id` | 删除游戏 |
 | `POST /api/sync` | 重试 push |
+
+`GET /api/games` 返回：
+
+```json
+{
+  "ok": true,
+  "games": [],
+  "catalog_versions": {
+    "GBA": "2026-10-23T08:02:07.012Z",
+    "MD": "2026-10-23T07:06:28.491Z",
+    "CPS1": "2026-10-23T07:06:28.491Z",
+    "FC": "2026-10-23T08:50:10.558Z"
+  }
+}
+```
+
+网页右侧“在线游戏”标题后的版本标签读取 `catalog_versions`，切换 GBA / MD / CPS1 / FC 时会同步显示对应分类版本时间，包括毫秒。
 
 `POST /api/games` 的 multipart 字段：
 

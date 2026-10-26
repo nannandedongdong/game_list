@@ -51,15 +51,22 @@ function createApp(config, store, publisher) {
   });
 
   app.get('/api/games', (req, res) => {
-    const games = store.allGames().map((game) => ({
-      ...game,
-      local: {
-        cover: store.localAssetUrl(game.cover_path),
-        rom: store.localAssetUrl(game.rom_path),
-      },
-      public: store.publicGameUrls(game.game_type, game),
-    }));
-    res.json({ ok: true, games });
+    const catalogs = store.allCatalogs();
+    const games = catalogs.flatMap(({ type, catalog }) =>
+      catalog.games.map((game) => ({
+        ...game,
+        game_type: type,
+        local: {
+          cover: store.localAssetUrl(game.cover_path),
+          rom: store.localAssetUrl(game.rom_path),
+        },
+        public: store.publicGameUrls(type, game),
+      })),
+    );
+    const catalogVersions = Object.fromEntries(
+      catalogs.map(({ type, catalog }) => [type, catalog.updated_at || null]),
+    );
+    res.json({ ok: true, games, catalog_versions: catalogVersions });
   });
 
   app.post('/api/games', async (req, res, next) => {

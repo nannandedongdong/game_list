@@ -3,6 +3,7 @@
 const state = {
   config: null,
   games: [],
+  catalogVersions: {},
   activeType: 'GBA',
   editingId: null,
   pendingDeleteGame: null,
@@ -26,6 +27,8 @@ const progress = el('uploadProgress');
 const progressBar = el('progressBar');
 const gameList = el('gameList');
 const typeTabs = el('typeTabs');
+const catalogVersion = el('catalogVersion');
+const catalogVersionText = el('catalogVersionText');
 const newGameButton = el('newGameButton');
 const deleteDialog = el('deleteDialog');
 const deleteDialogText = el('deleteDialogText');
@@ -47,6 +50,7 @@ async function init() {
     ]);
     state.config = configResult;
     state.games = gamesResult.games || [];
+    state.catalogVersions = gamesResult.catalog_versions || {};
     renderConfig();
     renderTypeTabs();
     renderExistingOptions();
@@ -147,6 +151,13 @@ function renderExistingOptions() {
 function renderGames() {
   const visible = state.games.filter((game) => game.game_type === state.activeType);
   el('gameCount').textContent = `${visible.length} 个游戏`;
+  const version = state.catalogVersions[state.activeType] || null;
+  catalogVersionText.textContent = version
+    ? `版本 ${formatVersionTime(version)}`
+    : '暂无版本时间';
+  catalogVersion.title = version
+    ? `${state.activeType} 分类版本\n${version}`
+    : `${state.activeType} 分类尚无版本时间`;
   gameList.replaceChildren();
 
   if (visible.length === 0) {
@@ -458,6 +469,7 @@ function upload(url, body) {
 async function reloadGames() {
   const result = await api('/api/games');
   state.games = result.games || [];
+  state.catalogVersions = result.catalog_versions || {};
   renderTypeTabs();
   renderExistingOptions();
   renderGames();
@@ -620,6 +632,23 @@ function clearMessage() {
   window.clearTimeout(showNotice.timer);
   notice.className = 'notice hidden';
   notice.textContent = '';
+}
+
+function formatVersionTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const parts = new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
+  return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}.${milliseconds}`;
 }
 
 function formatBytes(bytes) {
