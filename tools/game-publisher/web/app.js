@@ -46,6 +46,8 @@ const deleteRetryButton = el('deleteRetryButton');
 
 async function init() {
   bindEvents();
+  const requestedType = new URLSearchParams(window.location.search).get('type');
+  if (requestedType) state.activeType = requestedType.toUpperCase();
   try {
     const [configResult, gamesResult] = await Promise.all([
       api('/api/config'),
